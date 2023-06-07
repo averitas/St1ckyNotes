@@ -31,7 +31,7 @@ const notesPadding = 10;
 
 const App = () => {
   return (
-    <NotesList />
+      <NotesList />
   );
 };
 

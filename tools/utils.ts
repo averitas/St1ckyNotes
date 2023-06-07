@@ -8,5 +8,5 @@ function getLocalTimestringFromUnixTimestamp(ts) {
     return new Date(ts * 1000).toLocaleString();
 }
 
-export const getUnixTimestamp = getUnixTimestamp;
-export const getTimestringFromUnixTimestamp = getTimestringFromUnixTimestamp;
+export const GetUnixTimestamp = getUnixTimestamp;
+export const GetTimestringFromUnixTimestamp = getLocalTimestringFromUnixTimestamp;

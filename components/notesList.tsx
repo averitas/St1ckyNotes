@@ -1,14 +1,13 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   StyleSheet,
-  Text,
   View,
   ScrollView,
   FlatList,
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import { Avatar, Surface, Card, PaperProvider, Button } from 'react-native-paper';
+import { Avatar, Surface, Card, PaperProvider, Button, Text } from 'react-native-paper';
 import { FontAwesome } from 'react-native-vector-icons';
 import { Note } from '../types/note';
 import { v4 as uuidv4 } from 'uuid';
@@ -36,7 +35,12 @@ const NotesList = () => {
   const [size, onLayout] = useComponentSize();
 
   const addNote = () => {
-    const newNote = new Note(uuidv4(), "New Note", "New Note Content", new Date().toString(), []);
+    const newNote: Note = {
+      id: uuidv4(), 
+      title: "New Note", 
+      content: "New Note Content", 
+      date: new Date().toString(), 
+      tags: []};
     setNotes([...notes, newNote]);
   };
 
@@ -77,15 +81,11 @@ const NotesList = () => {
             }}>
               <View style={styles.note}>
               <Card>
-                <Card.Title title={item.title} left={LeftContent} />
+                <Card.Title title={index} left={LeftContent} />
                 <Card.Content>
-                  <Text variant="titleLarge">{item.title}</Text>
+                  <Text variant="titleLarge">{item.tltle}</Text>
                   <Text variant="bodyMedium">{item.content}</Text>
                 </Card.Content>
-                <Card.Actions>
-                  <Button><Text>Edit</Text></Button>
-                  <Button><Text>Delete</Text></Button>
-                </Card.Actions>
               </Card>
               </View>
             </TouchableOpacity>
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 10,
     borderRadius: 5,
-    width: {widthPerColumn},
+    width: widthPerColumn,
   },
   title: {
     fontSize: 18,
