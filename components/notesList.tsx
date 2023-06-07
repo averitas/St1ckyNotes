@@ -11,8 +11,10 @@ import { Avatar, Surface, Card, PaperProvider, Button, Text } from 'react-native
 import { FontAwesome } from 'react-native-vector-icons';
 import { Note } from '../types/note';
 import { v4 as uuidv4 } from 'uuid';
+import NoteEditor from './noteEditor';
 
 const LeftContent = props => <Avatar.Icon {...props} icon="text" />
+
 
 const useComponentSize = () => {
   const [size, setSize] = useState(null);
@@ -30,9 +32,11 @@ const widthPerColumn = 150;
 const notesPadding = 10;
 
 const NotesList = () => {
-  const [notes, setNotes] = useState([]);
-  const [numColumns, setNumColumns] = useState(1)
+  const [notes, setNotes] = useState<Array<Note>>([]);
+  const [numColumns, setNumColumns] = useState<number>(1)
   const [size, onLayout] = useComponentSize();
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [editingNote, setEditingNote] = useState<Note>(undefined);
 
   const addNote = () => {
     const newNote: Note = {
@@ -52,7 +56,7 @@ const NotesList = () => {
 
     console.log('Width: %d, height: %d, widthPerColumn: %d', size.width, size.height, widthPerColumn)
     // Calculate the number of columns based on the width and height of the screen.
-    const numColumns = Math.floor(size.width / (widthPerColumn + 90));
+    const numColumns = Math.floor(size.width / (widthPerColumn + 60));
     
     // Return the number of columns.
     return numColumns;
@@ -69,6 +73,12 @@ const NotesList = () => {
 
   return (
     <Surface style={styles.surface} elevation={4} onLayout={onLayout}>
+      { 
+        isEditing && 
+        <View style={styles.editor}>
+          <NoteEditor note={editingNote} onSave={setEditingNote}/> 
+        </View>
+      }
       <ScrollView >
         <FlatList
           key={numColumns}
@@ -83,7 +93,7 @@ const NotesList = () => {
               <Card>
                 <Card.Title title={index} left={LeftContent} />
                 <Card.Content>
-                  <Text variant="titleLarge">{item.tltle}</Text>
+                  <Text variant="titleLarge">{item.title}</Text>
                   <Text variant="bodyMedium">{item.content}</Text>
                 </Card.Content>
               </Card>
@@ -123,11 +133,22 @@ const styles = StyleSheet.create({
     right: 10,
   },
   surface: {
-    marginTop: '10%',
+    marginTop: '3%',
     height: "90%",
     width: "90%",
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  editor: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    width: 400,
+    height: 200,
+    background: 'white',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  }
 });

@@ -1,11 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { MD3LightTheme as DefaultTheme, PaperProvider } from 'react-native-paper';
-import App from './components/app';
+import HomePage from './components/homePage';
 
  function Entry() {
   return (
     <View style={styles.container}>
-      <App />
+      <HomePage />
     </View>
   );
 }
