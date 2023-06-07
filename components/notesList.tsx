@@ -38,6 +38,8 @@ const NotesList = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editingNote, setEditingNote] = useState<Note>(undefined);
 
+  const flatListRef = useRef<FlatList>(null);
+
   const addNote = () => {
     const newNote: Note = {
       id: uuidv4(), 
@@ -47,6 +49,13 @@ const NotesList = () => {
       tags: []};
     setNotes([...notes, newNote]);
   };
+
+  useEffect(() => {
+    if (notes.length === 0) {
+      return;
+    }
+    flatListRef.current.scrollToIndex({index: 0, animated: true});
+  }, [notes]);
 
   const getColumns = (size) => {
     if (size == null) {
@@ -84,8 +93,9 @@ const NotesList = () => {
           <FontAwesome name="plus" size={24} />
         </TouchableOpacity>
       </View>
-      <ScrollView style={{maxHeight: "100%", flex: 1}} contentContainerStyle={{flex: 1, maxHeight: "100%"}}>
+      <ScrollView style={{maxHeight: size?.height != null ? size.height : "100%", flex: 1}} contentContainerStyle={{flex: 1, maxHeight: "100%"}}>
         <FlatList
+          ref={flatListRef}
           scrollToOverflowEnabled={true}
           contentContainerStyle={{flex: 1, maxHeight: "100%"}}
           style={{flex: 1, maxHeight: "100%"}}
@@ -100,9 +110,8 @@ const NotesList = () => {
             }}>
               <View style={styles.note}>
               <Card>
-                <Card.Title title={index} left={LeftContent} />
+                <Card.Title title={item.title} left={LeftContent} />
                 <Card.Content>
-                  <Text variant="titleLarge">{item.title}</Text>
                   <Text variant="bodyMedium">{item.content}</Text>
                 </Card.Content>
               </Card>
