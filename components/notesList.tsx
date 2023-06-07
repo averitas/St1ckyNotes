@@ -43,8 +43,8 @@ const NotesList = () => {
   const addNote = () => {
     const newNote: Note = {
       id: uuidv4(), 
-      title: "New Note", 
-      content: "New Note Content", 
+      title: "{Note title}", 
+      content: "{This is Note Content}", 
       date: new Date().toString(), 
       tags: []};
     setNotes([...notes, newNote]);
@@ -110,7 +110,7 @@ const NotesList = () => {
             }}>
               <View style={styles.note}>
               <Card>
-                <Card.Title title={item.title} left={LeftContent} />
+                <Card.Title title={item.title} />
                 <Card.Content>
                   <Text variant="bodyMedium">{item.content}</Text>
                 </Card.Content>
