@@ -56,7 +56,7 @@ const NotesList = () => {
 
     console.log('Width: %d, height: %d, widthPerColumn: %d', size.width, size.height, widthPerColumn)
     // Calculate the number of columns based on the width and height of the screen.
-    const numColumns = Math.floor(size.width / (widthPerColumn + 60));
+    const numColumns = Math.floor(size.width / (widthPerColumn + 40));
     
     // Return the number of columns.
     return numColumns;
@@ -79,8 +79,17 @@ const NotesList = () => {
           <NoteEditor note={editingNote} onSave={setEditingNote}/> 
         </View>
       }
-      <ScrollView >
+      <View style={styles.addNoteButton}>
+        <TouchableOpacity onPress={addNote}>
+          <FontAwesome name="plus" size={24} />
+        </TouchableOpacity>
+      </View>
+      <ScrollView style={{maxHeight: "100%", flex: 1}} contentContainerStyle={{flex: 1, maxHeight: "100%"}}>
         <FlatList
+          scrollToOverflowEnabled={true}
+          contentContainerStyle={{flex: 1, maxHeight: "100%"}}
+          style={{flex: 1, maxHeight: "100%"}}
+          inverted={true}
           key={numColumns}
           data={notes}
           numColumns={numColumns}
@@ -102,11 +111,6 @@ const NotesList = () => {
           )}
         />
       </ScrollView>
-      <View style={styles.addNoteButton}>
-        <TouchableOpacity onPress={addNote}>
-          <FontAwesome name="plus" size={24} />
-        </TouchableOpacity>
-      </View>
     </Surface>
   );
 };
@@ -129,13 +133,18 @@ const styles = StyleSheet.create({
   },
   addNoteButton: {
     position: 'absolute',
-    bottom: 10,
-    right: 10,
+    top: 10,
+    left: 10,
   },
   surface: {
+    flex: 1,
     marginTop: '3%',
+    marginBottom: '0%',
+    paddingBottom: '0%',
     height: "90%",
     width: "90%",
+    maxWidth: "90%",
+    maxHeight: "90%",
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
