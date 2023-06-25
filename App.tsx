@@ -1,14 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { MD3LightTheme as DefaultTheme, PaperProvider } from 'react-native-paper';
-import HomePage from './components/homePage';
-
- function Entry() {
-  return (
-    <View style={styles.container}>
-      <HomePage />
-    </View>
-  );
-}
+import Navigation from './navigation';
 
 const theme = {
   ...DefaultTheme,
@@ -22,7 +14,7 @@ const theme = {
 export default function Main() {
   return (
     <PaperProvider  theme={theme}>
-      <Entry />
+      <Navigation />
     </PaperProvider>
   );
 };

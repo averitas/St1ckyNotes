@@ -5,22 +5,14 @@ import { Note } from '../types/note';
 import { v4 as uuidv4 } from 'uuid';
 
 
-const NoteEditor = ({ note, onSave }) => {
-    const [content, setContent] = useState(note.content);
-  
-    const handleSave = () => {
-      onSave({
-        content,
-        id: note.id,
-      });
-    };
+const LogoutPage = () => {
   
     // TODO: Add a text editor here.
     return (
       <Surface>
-        <Text>Place Holder for editor</Text>
+        <Text>Place Holder for login page</Text>
       </Surface>
     );
   };
   
-  export default NoteEditor;
+  export default LogoutPage;
