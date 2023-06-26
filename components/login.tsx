@@ -4,8 +4,6 @@
 
 import React from 'react';
 import { Platform, SafeAreaView, ScrollView, StyleSheet, Switch, Text, View, TouchableOpacity } from 'react-native';
-import type { MSALResult, MSALWebviewParams } from 'react-native-msal';
-import { B2CClient, config } from '../tools/msal';
 import { ConnectedProps, connect } from 'react-redux';
 import { AppDispatch, RootState } from '../redux/store';
 import { initAsync, loginAsync, logoutAsync, acquireTokenAsync, setIosEphemeralSession } from '../redux/authSlice';
@@ -16,11 +14,11 @@ const mapState = (state: RootState) => ({
   iosEphemeralSession: state.authReducer.iosEphemeralSession,
 })
 
-const mapDispatch = (dispatch: AppDispatch, ownProps) => {
+const mapDispatch = (dispatch: AppDispatch) => {
   return {
     // dispatching plain actions
     initAsync: () => dispatch(initAsync()),
-    loginAsync: () => dispatch(loginAsync(ownProps.webviewParam)),
+    loginAsync: (param) => dispatch(loginAsync(param)),
     logoutAsync: () => dispatch(logoutAsync()),
     acquireTokenAsync: (forceRefresh: boolean) => dispatch(acquireTokenAsync(forceRefresh)),
     setIosEphemeralSession: (val: boolean) => dispatch(setIosEphemeralSession(val))
@@ -37,8 +35,9 @@ interface LoginProps extends PropsFromRedux {
   route: any;
 }
 
-export default function LoginPage(props: LoginProps) {
+const LoginPage = (props: LoginProps) => {
   React.useEffect(() => {
+    console.log("initasync is " + props.initAsync)
     props.initAsync();
   }, []);
 
@@ -112,3 +111,5 @@ const styles = StyleSheet.create({
     padding: 1,
   },
 });
+
+export default connector(LoginPage);

@@ -55,6 +55,7 @@ export class B2CClient {
   
     public async init() {
       await this.pca.init();
+      console.log("PCA init finished");
       return this;
     }
   
@@ -62,6 +63,7 @@ export class B2CClient {
      *  was provided to the client, it will initiate the password reset flow
      */
     public async signIn(params: B2CSignInParams): Promise<MSALResult> {
+      console.log("PCA start signin")
       const isSignedIn = await this.isSignedIn();
       if (isSignedIn) {
         throw Error('A user is already signed in');
@@ -74,6 +76,7 @@ export class B2CClient {
         if (!result) {
           throw new Error('Could not sign in: Result was undefined.');
         }
+        console.log("PCA signin finished")
         return result;
       } catch (error: unknown) {
           throw error;

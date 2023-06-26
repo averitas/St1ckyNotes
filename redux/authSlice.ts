@@ -107,6 +107,7 @@ export const initAsync = createAsyncThunk(
             if (isSignedIn) {
               return await b2cClient.acquireTokenSilent({ scopes: config.auth.scopes });
             }
+            console.log("auth client init complete");
         } catch (error) {
             console.error(error);
         }
