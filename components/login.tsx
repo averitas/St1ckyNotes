@@ -6,72 +6,56 @@ import React from 'react';
 import { Platform, SafeAreaView, ScrollView, StyleSheet, Switch, Text, View, TouchableOpacity } from 'react-native';
 import type { MSALResult, MSALWebviewParams } from 'react-native-msal';
 import { B2CClient, config } from '../tools/msal';
+import { ConnectedProps, connect } from 'react-redux';
+import { AppDispatch, RootState } from '../redux/store';
+import { initAsync, loginAsync, logoutAsync, acquireTokenAsync, setIosEphemeralSession } from '../redux/authSlice';
 
-const b2cClient = new B2CClient(config);
+const mapState = (state: RootState) => ({
+  AuthResult: state.authReducer.AuthResult,
+  webviewParam: state.authReducer.webviewParameters,
+  iosEphemeralSession: state.authReducer.iosEphemeralSession,
+})
 
-export default function LoginPage() {
-  const [authResult, setAuthResult] = React.useState<MSALResult | null>(null);
-  const [iosEphemeralSession, setIosEphemeralSession] = React.useState(false);
-  const webviewParameters: MSALWebviewParams = {
-    ios_prefersEphemeralWebBrowserSession: iosEphemeralSession,
-  };
+const mapDispatch = (dispatch: AppDispatch, ownProps) => {
+  return {
+    // dispatching plain actions
+    initAsync: () => dispatch(initAsync()),
+    loginAsync: () => dispatch(loginAsync(ownProps.webviewParam)),
+    logoutAsync: () => dispatch(logoutAsync()),
+    acquireTokenAsync: (forceRefresh: boolean) => dispatch(acquireTokenAsync(forceRefresh)),
+    setIosEphemeralSession: (val: boolean) => dispatch(setIosEphemeralSession(val))
+  }
+}
 
+// init redux property
+const connector = connect(mapState, mapDispatch)
+
+type PropsFromRedux = ConnectedProps<typeof connector>
+
+interface LoginProps extends PropsFromRedux {
+  navigation: any;
+  route: any;
+}
+
+export default function LoginPage(props: LoginProps) {
   React.useEffect(() => {
-    async function init() {
-      try {
-        await b2cClient.init();
-        const isSignedIn = await b2cClient.isSignedIn();
-        if (isSignedIn) {
-          setAuthResult(await b2cClient.acquireTokenSilent({ scopes: config.auth.scopes }));
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    init();
+    props.initAsync();
   }, []);
-
-  const handleSignInPress = async () => {
-    try {
-      const res = await b2cClient.signIn({ scopes: config.auth.scopes, webviewParameters });
-      setAuthResult(res);
-    } catch (error) {
-      console.warn(error);
-    }
-  };
-
-  const handleAcquireTokenPress = async () => {
-    try {
-      const res = await b2cClient.acquireTokenSilent({ scopes: config.auth.scopes, forceRefresh: true });
-      setAuthResult(res);
-    } catch (error) {
-      console.warn(error);
-    }
-  };
-
-  const handleSignoutPress = async () => {
-    try {
-      await b2cClient.signOut();
-      setAuthResult(null);
-    } catch (error) {
-      console.warn(error);
-    }
-  };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.buttonContainer}>
-        {authResult ? (
+        {props.AuthResult ? (
           <>
-            <TouchableOpacity style={styles.button} onPress={handleAcquireTokenPress}>
+            <TouchableOpacity style={styles.button} onPress={() => props.acquireTokenAsync(true)}>
               <Text>Acquire Token (Silent)</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={handleSignoutPress}>
+            <TouchableOpacity style={styles.button} onPress={props.logoutAsync}>
               <Text>Sign Out</Text>
             </TouchableOpacity>
           </>
         ) : (
-          <TouchableOpacity style={styles.button} onPress={handleSignInPress}>
+          <TouchableOpacity style={styles.button} onPress={props.loginAsync}>
             <Text>Sign In</Text>
           </TouchableOpacity>
         )}
@@ -79,15 +63,15 @@ export default function LoginPage() {
         {Platform.OS === 'ios' && (
           <TouchableOpacity
             style={[styles.button, styles.switchButton]}
-            onPress={() => setIosEphemeralSession(!iosEphemeralSession)}
+            onPress={() => props.setIosEphemeralSession(!props.iosEphemeralSession)}
           >
             <Text>Prefer ephemeral browser session (iOS only)</Text>
-            <Switch value={iosEphemeralSession} onValueChange={setIosEphemeralSession} />
+            <Switch value={props.iosEphemeralSession} />
           </TouchableOpacity>
         )}
       </View>
       <ScrollView style={styles.scrollView}>
-        <Text>{JSON.stringify(authResult, null, 2)}</Text>
+        <Text>{JSON.stringify(props.AuthResult, null, 2)}</Text>
       </ScrollView>
     </SafeAreaView>
   );

@@ -1,9 +1,11 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import notesListReducer from './notesSlice';
+import authReducer from './authSlice';
 
 export const store = configureStore({
   reducer: {
     nodesList: notesListReducer,
+    authReducer: authReducer,
   },
 });
 

@@ -14,7 +14,7 @@ const mapState = (state: RootState) => ({
 const mapDispatch = (dispatch: AppDispatch) => {
   return {
     // dispatching plain actions
-    updateNote: dispatch(updateNote),
+    updateNote: () => dispatch(updateNote()),
   }
 }
 

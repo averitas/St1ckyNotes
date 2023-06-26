@@ -16,6 +16,13 @@ npx create-react-native-app -t with-typescript
 
 TypeScript is a superset of JavaScript which gives you static types and powerful tooling in Visual Studio Code including autocompletion and useful inline warnings for type errors.
 
+## Run in local environment
+
+```
+yarn install
+yarn web
+```
+
 ## 🚀 How to use
 
 #### Creating a new project
