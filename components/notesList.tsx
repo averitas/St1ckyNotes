@@ -8,10 +8,12 @@ import {
   Dimensions,
 } from 'react-native';
 import { Avatar, Surface, Card, PaperProvider, Button, Text } from 'react-native-paper';
+import { connect, ConnectedProps } from 'react-redux'
 import { FontAwesome } from 'react-native-vector-icons';
 import { Note } from '../types/note';
-import { v4 as uuidv4 } from 'uuid';
 import NoteEditor from './noteEditor';
+import { AppDispatch, RootState } from '../redux/store';
+import { addBlankNote } from '../redux/notesSlice';
 
 const LeftContent = props => <Avatar.Icon {...props} icon="text" />
 
@@ -29,33 +31,41 @@ const useComponentSize = () => {
 };
 
 const widthPerColumn = 150;
-const notesPadding = 10;
 
-const NotesList = () => {
-  const [notes, setNotes] = useState<Array<Note>>([]);
+const mapState = (state: RootState) => ({
+  NotesList: state.nodesList.notes,
+})
+
+const mapDispatch = (dispatch: AppDispatch) => {
+  return {
+    // dispatching plain actions
+    addBlankNote: () => dispatch(addBlankNote()),
+  }
+}
+
+// init redux property
+const connector = connect(mapState, mapDispatch)
+
+type PropsFromRedux = ConnectedProps<typeof connector>
+
+interface NotesListProps extends PropsFromRedux {
+  navigation: any;
+  route: any;
+}
+
+const NotesList = (props: NotesListProps) => {
+  // relayout according to screen size
   const [numColumns, setNumColumns] = useState<number>(1)
   const [size, onLayout] = useComponentSize();
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [editingNote, setEditingNote] = useState<Note>(undefined);
 
   const flatListRef = useRef<FlatList>(null);
 
-  const addNote = () => {
-    const newNote: Note = {
-      id: uuidv4(), 
-      title: "{Note title}", 
-      content: "{This is Note Content}", 
-      date: new Date().toString(), 
-      tags: []};
-    setNotes([...notes, newNote]);
-  };
-
   useEffect(() => {
-    if (notes.length === 0) {
+    if (props.NotesList.length === 0) {
       return;
     }
     flatListRef.current.scrollToIndex({index: 0, animated: true});
-  }, [notes]);
+  }, [props.NotesList]);
 
   const getColumns = (size) => {
     if (size == null) {
@@ -76,20 +86,10 @@ const NotesList = () => {
     setNumColumns(newNumColumns);
   }
 
-  const deleteNote = (index) => {
-    setNotes(notes.filter((note, i) => i !== index));
-  };
-
   return (
     <Surface style={styles.surface} elevation={4} onLayout={onLayout}>
-      { 
-        isEditing && 
-        <View style={styles.editor}>
-          <NoteEditor note={editingNote} onSave={setEditingNote}/> 
-        </View>
-      }
       <View style={styles.addNoteButton}>
-        <TouchableOpacity onPress={addNote}>
+        <TouchableOpacity onPress={props.addBlankNote}>
           <FontAwesome name="plus" size={24} />
         </TouchableOpacity>
       </View>
@@ -101,12 +101,13 @@ const NotesList = () => {
           style={{flex: 1, maxHeight: "100%"}}
           inverted={true}
           key={numColumns}
-          data={notes}
+          data={props.NotesList}
           numColumns={numColumns}
           keyExtractor={(note) => note.id}
           renderItem={({ item, index }) => (
             <TouchableOpacity onPress={() => {
               // Go to edit page
+              props.navigation.navigate('NoteEditor', {note: item})
             }}>
               <View style={styles.note}>
               <Card>
@@ -124,7 +125,7 @@ const NotesList = () => {
   );
 };
 
-export default NotesList;
+export default connector(NotesList);
 
 const styles = StyleSheet.create({
   note: {
@@ -147,13 +148,13 @@ const styles = StyleSheet.create({
   },
   surface: {
     flex: 1,
-    marginTop: '3%',
+    marginTop: '0%',
     marginBottom: '0%',
     paddingBottom: '0%',
-    height: "90%",
-    width: "90%",
-    maxWidth: "90%",
-    maxHeight: "90%",
+    height: "100%",
+    width: "100%",
+    maxWidth: "100%",
+    maxHeight: "100%",
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
