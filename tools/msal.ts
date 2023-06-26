@@ -117,9 +117,9 @@ export class B2CClient {
     private async getAccountForPolicy(): Promise<MSALAccount | undefined> {
       const accounts = await this.pca.getAccounts();
       if (accounts == null || accounts!.length == 0) {
-        return null;
+        return undefined;
       }
       console.log("account identify: " + accounts[0].identifier + ", claim: " + String(accounts[0].claims))
       return accounts.pop();
     }
-  }
+}

@@ -5,14 +5,14 @@ import { Note } from '../types/note';
 import { v4 as uuidv4 } from 'uuid';
 
 
-const LogoutPage = () => {
+const ProfilePage = () => {
   
     // TODO: Add a text editor here.
     return (
       <Surface>
-        <Text>Place Holder for logout page</Text>
+        <Text>Place Holder for profile page</Text>
       </Surface>
     );
   };
   
-  export default LogoutPage;
+  export default ProfilePage;
