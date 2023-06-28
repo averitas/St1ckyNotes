@@ -7,6 +7,7 @@ import { Platform, SafeAreaView, ScrollView, StyleSheet, Switch, Text, View, Tou
 import { ConnectedProps, connect } from 'react-redux';
 import { AppDispatch, RootState } from '../redux/store';
 import { initAsync, loginAsync, logoutAsync, acquireTokenAsync, setIosEphemeralSession } from '../redux/authSlice';
+import { MSALWebviewParams } from 'react-native-msal';
 
 const mapState = (state: RootState) => ({
   AuthResult: state.authReducer.AuthResult,
@@ -18,7 +19,7 @@ const mapDispatch = (dispatch: AppDispatch) => {
   return {
     // dispatching plain actions
     initAsync: () => dispatch(initAsync()),
-    loginAsync: (param) => dispatch(loginAsync(param)),
+    loginAsync: (param: MSALWebviewParams) => dispatch(loginAsync(param)),
     logoutAsync: () => dispatch(logoutAsync()),
     acquireTokenAsync: (forceRefresh: boolean) => dispatch(acquireTokenAsync(forceRefresh)),
     setIosEphemeralSession: (val: boolean) => dispatch(setIosEphemeralSession(val))
@@ -37,7 +38,6 @@ interface LoginProps extends PropsFromRedux {
 
 const LoginPage = (props: LoginProps) => {
   React.useEffect(() => {
-    console.log("initasync is " + props.initAsync)
     props.initAsync();
   }, []);
 
@@ -54,7 +54,7 @@ const LoginPage = (props: LoginProps) => {
             </TouchableOpacity>
           </>
         ) : (
-          <TouchableOpacity style={styles.button} onPress={props.loginAsync}>
+          <TouchableOpacity style={styles.button} onPress={() => props.loginAsync(props.webviewParam)}>
             <Text>Sign In</Text>
           </TouchableOpacity>
         )}
@@ -65,7 +65,7 @@ const LoginPage = (props: LoginProps) => {
             onPress={() => props.setIosEphemeralSession(!props.iosEphemeralSession)}
           >
             <Text>Prefer ephemeral browser session (iOS only)</Text>
-            <Switch value={props.iosEphemeralSession} />
+            <Switch value={props.iosEphemeralSession}  onValueChange={(val) => {props.setIosEphemeralSession(val)}}/>
           </TouchableOpacity>
         )}
       </View>
