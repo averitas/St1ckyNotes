@@ -15,10 +15,10 @@ const Main = () => {
           title: route.name,
           headerShown: true,
         })}
-        initialRouteName="MainTabs"
+        initialRouteName="Notes"
       >
         <MainStack.Screen 
-          name="MainTabs" component={NotesList} 
+          name="Notes" component={NotesList} 
         />
         <MainStack.Screen 
           name="NoteEditor" component={NoteEditor} 

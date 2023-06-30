@@ -58,23 +58,23 @@ export default () => {
             }}
             />
         )}
-        initialRouteName="Home"
+        initialRouteName="Notes"
       >
         <Tab.Screen
-            name="Home"
+            name="Notes"
             component={Main}
             options={{
-            tabBarLabel: 'Home',
+            tabBarLabel: 'Notes',
             tabBarIcon: ({ color, size }) => {
-                return <Icon name="home" size={size} color={color} />;
+                return <Icon name="book-open-outline" size={size} color={color} />;
             },
             }}
         />
         <Tab.Screen
-            name="Auth"
+            name="Config"
             component={Auth}
             options={{
-            tabBarLabel: 'Auth',
+            tabBarLabel: 'Configuration',
             tabBarIcon: ({ color, size }) => {
                 return <Icon name="cog" size={size} color={color} />;
             },
