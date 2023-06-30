@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import { Avatar, Surface, Card, PaperProvider, Button, Text } from 'react-native-paper';
+import { Avatar, Surface, Card, PaperProvider, Button, Text, FAB } from 'react-native-paper';
 import { connect, ConnectedProps } from 'react-redux'
 import { FontAwesome } from 'react-native-vector-icons';
 import { Note } from '../types/note';
@@ -88,11 +88,6 @@ const NotesList = (props: NotesListProps) => {
 
   return (
     <Surface style={styles.surface} elevation={4} onLayout={onLayout}>
-      <View style={styles.addNoteButton}>
-        <TouchableOpacity onPress={props.addBlankNote}>
-          <FontAwesome name="plus" size={24} />
-        </TouchableOpacity>
-      </View>
       <ScrollView style={{maxHeight: size?.height != null ? size.height : "100%", flex: 1}} contentContainerStyle={{flex: 1, maxHeight: "100%"}}>
         <FlatList
           ref={flatListRef}
@@ -121,6 +116,11 @@ const NotesList = (props: NotesListProps) => {
           )}
         />
       </ScrollView>
+        <FAB
+          icon="plus"
+          style={styles.addFab}
+          onPress={props.addBlankNote}
+        />
     </Surface>
   );
 };
@@ -140,11 +140,6 @@ const styles = StyleSheet.create({
   },
   content: {
     fontSize: 16,
-  },
-  addNoteButton: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
   },
   surface: {
     flex: 1,
@@ -169,5 +164,11 @@ const styles = StyleSheet.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center"
-  }
+  },
+  addFab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
+  },
 });

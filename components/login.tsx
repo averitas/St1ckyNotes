@@ -8,6 +8,7 @@ import { ConnectedProps, connect } from 'react-redux';
 import { AppDispatch, RootState } from '../redux/store';
 import { initAsync, loginAsync, logoutAsync, acquireTokenAsync, setIosEphemeralSession } from '../redux/authSlice';
 import { MSALWebviewParams } from 'react-native-msal';
+import { Divider, List, Surface } from 'react-native-paper';
 
 const mapState = (state: RootState) => ({
   AuthResult: state.authReducer.AuthResult,
@@ -41,24 +42,13 @@ const LoginPage = (props: LoginProps) => {
     props.initAsync();
   }, []);
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.buttonContainer}>
-        {props.AuthResult ? (
-          <>
-            <TouchableOpacity style={styles.button} onPress={() => props.acquireTokenAsync(true)}>
-              <Text>Acquire Token (Silent)</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={props.logoutAsync}>
-              <Text>Sign Out</Text>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <TouchableOpacity style={styles.button} onPress={() => props.loginAsync(props.webviewParam)}>
-            <Text>Sign In</Text>
-          </TouchableOpacity>
-        )}
+  if (props.AuthResult) {
+    props.navigation.navigate('Profile');
+  }
 
+  return (
+    <Surface style={styles.surface} elevation={4}>
+      <View style={styles.buttonContainer}>
         {Platform.OS === 'ios' && (
           <TouchableOpacity
             style={[styles.button, styles.switchButton]}
@@ -69,18 +59,48 @@ const LoginPage = (props: LoginProps) => {
           </TouchableOpacity>
         )}
       </View>
-      <ScrollView style={styles.scrollView}>
+      <ScrollView style={styles.scrollView} >
+        <List.Section>
+          <List.Item
+            title="First Item"
+            description="Item description"
+            left={props => <List.Icon {...props} icon="folder" />}
+          />
+          {props.AuthResult ? (
+            <List.Item title="Not Login" left={() => <List.Icon icon="account-alert" />} />
+          ) : (
+            <List.Item title="Sign In" 
+              description="Login your microsoft account" 
+              left={props => <List.Icon {...props} icon="account-arrow-left" />}
+              onPress={() => props.loginAsync(props.webviewParam)}
+            />
+          )}
+
+        </List.Section>
+        <Divider />
         <Text>{JSON.stringify(props.AuthResult, null, 2)}</Text>
       </ScrollView>
-    </SafeAreaView>
+    </Surface>
   );
 }
 
 const styles = StyleSheet.create({
+  surface: {
+    flex: 1,
+    marginTop: '0%',
+    marginBottom: '0%',
+    paddingBottom: '0%',
+    height: "100%",
+    width: "100%",
+    maxWidth: "100%",
+    maxHeight: "100%",
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
     padding: '1%',
-    backgroundColor: 'white',
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -107,8 +127,12 @@ const styles = StyleSheet.create({
     width: '99%',
   },
   scrollView: {
-    borderWidth: 1,
     padding: 1,
+    width: "100%",
+    height: "100%",
+    maxHeight: "100%",
+    maxWidth: "100%",
+    flex: 1,
   },
 });
 
