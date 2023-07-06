@@ -17,10 +17,10 @@ const Main = () => {
         })}
         initialRouteName="Notes"
       >
-        <MainStack.Screen 
+        <MainStack.Screen
           name="Notes" component={NotesList} 
         />
-        <MainStack.Screen 
+        <MainStack.Screen
           name="NoteEditor" component={NoteEditor} 
         />
     </MainStack.Navigator>
