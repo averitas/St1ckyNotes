@@ -47,6 +47,7 @@ const NoteEditor = (props:NoteEditorProps) => {
   const editorSurface = React.useRef<View>();
   // use header to switch between edit and view mode.
   const [isEditing, setIsEditing] = useState<boolean>(false)
+  const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false)
   const [noteEditing, setNoteEditing] = useState<Note>(props.route.params.note)
 
   const [editorSurfaceSize, onEditorSurfaceLayout] = useComponentSize();
@@ -56,16 +57,19 @@ const NoteEditor = (props:NoteEditorProps) => {
     <Surface style={{ flex: 1, height: '100%', width: '100%' }}>
       <Appbar.Header>
         <Appbar.BackAction onPress={() => props.navigation.goBack()} />
-        <Appbar.Content title={noteEditing.title} />
-        <Appbar.Action icon="content-save" onPress={() => {props.updateNote(noteEditing)}} />
+        <Appbar.Content title={
+          isEditingTitle ?
+          <TextInput value={noteEditing.title} onChangeText={text => {
+            setNoteEditing({...noteEditing, title: text})
+          }} onBlur={e => setIsEditingTitle(false)} /> :
+          <Text variant="headlineSmall" onPress={e => setIsEditingTitle(true)}>{noteEditing.title}</Text>} />
+        <Appbar.Action icon="content-save" onPress={() => {
+          props.updateNote({...noteEditing, date: new Date().toString()});
+        }} />
         <Appbar.Action icon={isEditing ? "eye" : "file-document-edit"} onPress={() => {
           setIsEditing(!isEditing);
         }} />
       </Appbar.Header>
-      <Text>Note id: {props.route.params.note.id}</Text>
-      <Text>Note Title: {props.route.params.note.title}</Text>
-      <Text>Note Content: {props.route.params.note.content}</Text>
-
       <Surface 
         style={styles.surface} 
         ref={editorSurface}
