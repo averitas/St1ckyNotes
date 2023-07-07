@@ -17,7 +17,6 @@ import { addBlankNote } from '../redux/notesSlice';
 
 const LeftContent = props => <Avatar.Icon {...props} icon="text" />
 
-
 const useComponentSize = () => {
   const [size, setSize] = useState(null);
 

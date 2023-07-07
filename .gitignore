@@ -64,3 +64,8 @@ buck-out/
 .expo/*
 web-build/
 St1ckyNotes.code-workspace
+
+# temp ignore for now
+dist/*
+android/*
+assets/quill*
