@@ -1,17 +1,29 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Platform, KeyboardAvoidingView, SafeAreaView, ScrollView } from "react-native";
-import { Avatar, Surface, Card, PaperProvider, Button, Text, Appbar } from 'react-native-paper';
+import { Platform, KeyboardAvoidingView, SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
+import { Avatar, Surface, Card, PaperProvider, Button, Text, Appbar, TextInput, SurfaceProps } from 'react-native-paper';
 import { FontAwesome } from 'react-native-vector-icons';
 import { Note } from '../types/note';
 import { v4 as uuidv4 } from 'uuid';
 import { AppDispatch, RootState } from '../redux/store';
 import { updateNote } from '../redux/notesSlice';
 import { ConnectedProps, connect } from 'react-redux';
-import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor';
+import ReactMarkdown from 'react-markdown'
 
 const mapState = (state: RootState) => ({
   NotesList: state.nodesList.notes,
 })
+
+const useComponentSize = () => {
+  const [size, setSize] = useState(null);
+
+  const onLayout = useCallback(event => {
+    const { width, height } = event.nativeEvent.layout;
+    console.log("layout is " + event.nativeEvent.layout)
+    setSize({ width, height });
+  }, []);
+
+  return [size, onLayout];
+};
 
 const mapDispatch = (dispatch: AppDispatch) => {
   return {
@@ -32,41 +44,72 @@ interface NoteEditorProps extends PropsFromRedux {
 
 const handleHead = ({tintColor}) => <Text style={{color: tintColor}}>H1</Text>
 const NoteEditor = (props:NoteEditorProps) => {
-   const richText = React.useRef();
-   let note: Note = props.route.params.note;
+  const editorSurface = React.useRef<View>();
+  // use header to switch between edit and view mode.
+  const [isEditing, setIsEditing] = useState<boolean>(false)
+  const [noteEditing, setNoteEditing] = useState<Note>(props.route.params.note)
+
+  const [editorSurfaceSize, onEditorSurfaceLayout] = useComponentSize();
+
    // TODO: Add a text editor here.
-   return (
+  return (
     <Surface style={{ flex: 1, height: '100%', width: '100%' }}>
       <Appbar.Header>
-        <Appbar.BackAction onPress={() => props.navigation.navigate('Notes')} />
-        <Appbar.Content title={note.title} />
-        <Appbar.Action icon="content-save" onPress={() => {props.updateNote(note)}} />
+        <Appbar.BackAction onPress={() => props.navigation.goBack()} />
+        <Appbar.Content title={noteEditing.title} />
+        <Appbar.Action icon="content-save" onPress={() => {props.updateNote(noteEditing)}} />
+        <Appbar.Action icon={isEditing ? "eye" : "file-document-edit"} onPress={() => {
+          setIsEditing(!isEditing);
+        }} />
       </Appbar.Header>
       <Text>Note id: {props.route.params.note.id}</Text>
       <Text>Note Title: {props.route.params.note.title}</Text>
       <Text>Note Content: {props.route.params.note.content}</Text>
 
-      <ScrollView style={{ flex: 1, height: '100%', width: '100%' }}>
-        <KeyboardAvoidingView 
-          behavior={Platform.OS === "ios" ? "padding" : "height"}	
-          style={{ flex: 1, height: '100%', width: '100%' }}>
-          <Text>Description: </Text>
-            <RichEditor
-                ref={richText}
-                onChange={ descriptionText => {
-                    note.content = descriptionText;
-                }}
-            />
-        </KeyboardAvoidingView>
-      </ScrollView>
-      <RichToolbar
-        editor={richText}
-        actions={[ actions.setBold, actions.setItalic, actions.setUnderline, actions.heading1 ]}
-        iconMap={{ [actions.heading1]: handleHead }}
-      />
+      <Surface 
+        style={styles.surface} 
+        ref={editorSurface}
+        onLayout={onEditorSurfaceLayout}
+        >
+          {
+            isEditing ? 
+            <TextInput
+              multiline={true}
+              value={noteEditing.content}
+              onChangeText={text => setNoteEditing({...noteEditing, content: text})}
+                style={{ flex: 1, height: editorSurfaceSize?.height ?? 500 }}
+              contentStyle={styles.textInputContent}
+            /> : 
+            <ReactMarkdown children={noteEditing.content} />
+          }
+      </Surface>
     </Surface>
   );
 };
 
+const styles = StyleSheet.create({
+  textInputContent: { 
+    flex: 1, 
+    paddingVertical: 0, 
+    textAlignVertical: 'top', 
+    textAlign: 'left',
+    paddingTop: 5,
+    marginTop: 5,
+    paddingBottom: 5,
+    marginBottom: 5,
+    paddingLeft: 0,
+    paddingRight: 0,
+  },
+  textInput: {
+    flex: 1, 
+    height: 500, 
+    paddingVertical: 3
+  },
+  surface: {
+    flex: 1,
+    alignItems: 'stretch',
+    alignContent: 'stretch'
+  },
+})
   
 export default connector(NoteEditor);

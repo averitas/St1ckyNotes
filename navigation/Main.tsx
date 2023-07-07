@@ -21,6 +21,9 @@ const Main = () => {
           name="Notes" component={NotesList} 
         />
         <MainStack.Screen
+          options={({ navigation, route }) => ({
+            headerShown: false,
+          })}
           name="NoteEditor" component={NoteEditor} 
         />
     </MainStack.Navigator>
