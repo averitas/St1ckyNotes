@@ -58,10 +58,10 @@ export default () => {
             }}
             />
         )}
-        initialRouteName="Notes"
+        initialRouteName="Main"
       >
         <Tab.Screen
-            name="Notes"
+            name="Main"
             component={Main}
             options={{
             tabBarLabel: 'Notes',

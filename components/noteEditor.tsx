@@ -8,6 +8,13 @@ import { AppDispatch, RootState } from '../redux/store';
 import { updateNote } from '../redux/notesSlice';
 import { ConnectedProps, connect } from 'react-redux';
 import ReactMarkdown from 'react-markdown'
+import Markdown from 'react-native-markdown-display';
+declare module 'react-native-markdown-display' {
+  // https://www.typescriptlang.org/docs/handbook/declaration-merging.html#merging-interfaces
+  interface MarkdownProps {
+    children?: React.ReactNode;
+  }
+}
 
 const mapState = (state: RootState) => ({
   NotesList: state.nodesList.notes,
@@ -84,7 +91,13 @@ const NoteEditor = (props:NoteEditorProps) => {
                 style={{ flex: 1, height: editorSurfaceSize?.height ?? 500 }}
               contentStyle={styles.textInputContent}
             /> : 
-            <ReactMarkdown children={noteEditing.content} />
+            <ScrollView
+              contentInsetAdjustmentBehavior="automatic"
+              style={{height: '100%'}}>
+              <Markdown>
+                {noteEditing.content}
+              </Markdown>
+            </ScrollView>
           }
       </Surface>
     </Surface>
