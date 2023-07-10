@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "St1ckyNotes",
-    "slug": "St1ckyNotes",
+    "name": "St1ckynotes",
+    "slug": "lewissveritas.st1ckynotes",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -34,7 +34,9 @@
         {
           "androidPackageSignatureHash": "AZGRo9vAfstVcLMCw1Td3Aw+g1E="
         }
-      ]
+      ],
+      ["./plugins/withAndroidNamespace"],
+      ["./plugins/withAndroidManifest"]
     ]
   }
 }
