@@ -47,6 +47,9 @@ To run your project, navigate to the directory and run one of the following yarn
 - yarn ios # you need to use macOS to build the iOS project - use the Expo app if you need to do iOS development without a Mac
 - yarn web
 
+### Build
+- eas build --local
+
 ## 📝 Notes
 
 - [Expo TypeScript guide](https://docs.expo.dev/versions/latest/guides/typescript/)

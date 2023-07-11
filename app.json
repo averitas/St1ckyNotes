@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "St1ckynotes",
-    "slug": "lewissveritas.st1ckynotes",
+    "slug": "St1ckynotes",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -32,11 +32,20 @@
       [
         "react-native-msal",
         {
-          "androidPackageSignatureHash": "AZGRo9vAfstVcLMCw1Td3Aw+g1E="
+          "androidPackageSignatureHash": "WEUbGR/ilaYWDQpXwqLilpPilZNiFeKJoUPilIxo4oyQYA0K"
         }
       ],
-      ["./plugins/withAndroidNamespace"],
-      ["./plugins/withAndroidManifest"]
-    ]
+      [
+        "./plugins/withAndroidNamespace"
+      ],
+      [
+        "./plugins/withAndroidManifest"
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "d1540e62-8c65-467b-a5cb-30c396480aaf"
+      }
+    }
   }
 }

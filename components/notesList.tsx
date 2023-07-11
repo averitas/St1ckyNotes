@@ -91,8 +91,8 @@ const NotesList = (props: NotesListProps) => {
       <FlatList
         ref={flatListRef}
         scrollToOverflowEnabled={true}
-        contentContainerStyle={{flexGrow: 1, alignContent: 'center', justifyContent: 'center', width: '100%'}}
-        style={{flexGrow: 1, width: "100%", alignSelf: 'center', alignContent: 'center'}}
+        contentContainerStyle={{flexGrow: 1, alignContent: 'space-around', justifyContent: 'flex-start', width: '100%', marginHorizontal: 50}}
+        style={{flexGrow: 1, width: "100%", alignSelf: 'flex-start', alignContent: 'flex-start'}}
         inverted={true}
         key={numColumns}
         data={props.NotesList}

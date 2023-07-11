@@ -21,7 +21,7 @@ export const config: B2CConfiguration = {
         android: "msauth://com.lewissveritas.st1ckynotes/AZGRo9vAfstVcLMCw1Td3Aw%2Bg1E%3D",
         web: "http://localhost:19006"
     }),
-    scopes: [ 'https://graph.microsoft.com/User.Read' ]
+    scopes: [ 'https://graph.microsoft.com/User.Read', 'https://graph.microsoft.com/Mail.ReadWrite' ]
   },
   cache: {cacheLocation: 'localStorage'}
 };

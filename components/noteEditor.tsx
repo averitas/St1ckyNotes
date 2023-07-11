@@ -9,6 +9,7 @@ import { updateNote } from '../redux/notesSlice';
 import { ConnectedProps, connect } from 'react-redux';
 import ReactMarkdown from 'react-markdown'
 import Markdown from 'react-native-markdown-display';
+import TextEditor from './editor/textEditor';
 declare module 'react-native-markdown-display' {
   // https://www.typescriptlang.org/docs/handbook/declaration-merging.html#merging-interfaces
   interface MarkdownProps {
@@ -25,7 +26,7 @@ const useComponentSize = () => {
 
   const onLayout = useCallback(event => {
     const { width, height } = event.nativeEvent.layout;
-    console.log("layout is " + event.nativeEvent.layout)
+    console.log('Editor Width: %d, height: %d', width, height)
     setSize({ width, height });
   }, []);
 
@@ -78,19 +79,16 @@ const NoteEditor = (props:NoteEditorProps) => {
         }} />
       </Appbar.Header>
       <Surface 
-        style={styles.surface} 
+        style={styles.surface}
         ref={editorSurface}
         onLayout={onEditorSurfaceLayout}
         >
           {
-            isEditing ? 
-            <TextInput
-              multiline={true}
-              value={noteEditing.content}
-              onChangeText={text => setNoteEditing({...noteEditing, content: text})}
-                style={{ flex: 1, height: editorSurfaceSize?.height ?? 500 }}
-              contentStyle={styles.textInputContent}
-            /> : 
+            isEditing ? (<TextEditor 
+              setContent={(content) => {setNoteEditing({...noteEditing, content: content})}} 
+              content={noteEditing.content}
+              width={editorSurfaceSize?.width ?? 300}
+              height={editorSurfaceSize?.width ?? 600}/>) :
             <ScrollView
               contentInsetAdjustmentBehavior="automatic"
               style={{height: '100%'}}>
