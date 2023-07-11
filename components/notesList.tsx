@@ -63,7 +63,8 @@ const NotesList = (props: NotesListProps) => {
     if (props.NotesList.length === 0) {
       return;
     }
-    flatListRef.current.scrollToIndex({index: 0, animated: true});
+    // flatListRef.current.scrollToIndex({index: props.NotesList.length, animated: true});
+    flatListRef.current.scrollToEnd({animated: true});
   }, [props.NotesList]);
 
   const getColumns = (size) => {
@@ -87,39 +88,37 @@ const NotesList = (props: NotesListProps) => {
 
   return (
     <Surface style={styles.surface} elevation={4} onLayout={onLayout}>
-      <ScrollView style={{maxHeight: size?.height != null ? size.height : "100%", flex: 1}} contentContainerStyle={{flex: 1, maxHeight: "100%"}}>
-        <FlatList
-          ref={flatListRef}
-          scrollToOverflowEnabled={true}
-          contentContainerStyle={{flex: 1, maxHeight: "100%"}}
-          style={{flex: 1, maxHeight: "100%"}}
-          inverted={true}
-          key={numColumns}
-          data={props.NotesList}
-          numColumns={numColumns}
-          keyExtractor={(note) => note.id}
-          renderItem={({ item, index }) => (
-            <TouchableOpacity onPress={() => {
-              // Go to edit page
-              props.navigation.navigate('NoteEditor', {note: item})
-            }}>
-              <View style={styles.note}>
-              <Card>
-                <Card.Title title={item.title} />
-                <Card.Content>
-                  <Text variant="bodyMedium">{item.content}</Text>
-                </Card.Content>
-              </Card>
-              </View>
-            </TouchableOpacity>
-          )}
-        />
-      </ScrollView>
-        <FAB
-          icon="plus"
-          style={styles.addFab}
-          onPress={props.addBlankNote}
-        />
+      <FlatList
+        ref={flatListRef}
+        scrollToOverflowEnabled={true}
+        contentContainerStyle={{flexGrow: 1, alignContent: 'center', justifyContent: 'center', width: '100%'}}
+        style={{flexGrow: 1, width: "100%", alignSelf: 'center', alignContent: 'center'}}
+        inverted={true}
+        key={numColumns}
+        data={props.NotesList}
+        numColumns={numColumns}
+        keyExtractor={(note) => note.id}
+        renderItem={({ item, index }) => (
+          <TouchableOpacity onPress={() => {
+            // Go to edit page
+            props.navigation.navigate('NoteEditor', {note: item})
+          }} key={index}>
+            <View style={styles.note}>
+            <Card>
+              <Card.Title title={item.title} />
+              <Card.Content>
+                <Text variant="bodyMedium">{item.content}</Text>
+              </Card.Content>
+            </Card>
+            </View>
+          </TouchableOpacity>
+        )}
+      />
+      <FAB
+        icon="plus"
+        style={styles.addFab}
+        onPress={props.addBlankNote}
+      />
     </Surface>
   );
 };
