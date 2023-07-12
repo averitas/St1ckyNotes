@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Avatar, Surface, Card, PaperProvider, Button, Text, Divider, List } from 'react-native-paper';
+import { Avatar, Surface, Card, PaperProvider, Button, Text, Divider, List, ActivityIndicator, MD2Colors } from 'react-native-paper';
 import { FontAwesome } from 'react-native-vector-icons';
 import { Note } from '../types/note';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,11 +8,13 @@ import { ConnectedProps, connect } from 'react-redux';
 import { AppDispatch, RootState } from '../redux/store';
 import { acquireTokenAsync, initAsync, loginAsync, logoutAsync, setIosEphemeralSession } from '../redux/authSlice';
 import { MSALWebviewParams } from 'react-native-msal';
+import { notesListStatus } from '../redux/actionType';
 
 const mapState = (state: RootState) => ({
   AuthResult: state.authReducer.AuthResult,
   webviewParam: state.authReducer.webviewParameters,
   iosEphemeralSession: state.authReducer.iosEphemeralSession,
+  status: state.authReducer.status,
 })
 
 const mapDispatch = (dispatch: AppDispatch) => {
@@ -37,6 +39,20 @@ interface ProfileProps extends PropsFromRedux {
 }
 
 const ProfilePage = (props: ProfileProps) => {
+
+  React.useEffect(() => {
+    if (props.AuthResult === null && props.status === notesListStatus.idle) {
+      props.navigation.navigate('Login');
+    }
+  }, [props.AuthResult]);
+
+  if (props.status === notesListStatus.loading) {
+    return (
+      <Surface style={styles.surface} elevation={4}>
+        <ActivityIndicator animating={true} color={MD2Colors.red800} />
+      </Surface>
+    )
+  }
   
     // TODO: butify this page
     return (
