@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState, AppThunk } from './store';
-import { fetchNotes } from './notesApi';
+import { fetchNotesAsync } from './actions';
 import { notesListStatus } from './actionType';
 import { Note } from '../types/note';
 import { v4 as uuidv4 } from 'uuid';
@@ -18,21 +18,6 @@ const initialState: NotesListState = {
     notes: [],
 };
 
-/// Async update function
-// The function below is called a thunk and allows us to perform async logic. It
-// can be dispatched like a regular action: `dispatch(incrementAsync(10))`. This
-// will call the thunk with the `dispatch` function as the first argument. Async
-// code can then be executed and other actions can be dispatched. Thunks are
-// typically used to make async requests.
-export const fetchNotesAsync = createAsyncThunk(
-  'notesList/fetchNotes',
-  async () => {
-    const response = await fetchNotes();
-    // The value we return becomes the `fulfilled` action payload
-    return response.data;
-  }
-);
-
 /// Slice
 export const notesListSlice = createSlice({
   name: 'notesList',
@@ -43,7 +28,8 @@ export const notesListSlice = createSlice({
         const newNote: Note = {
         id: uuidv4(), 
         title: "{Note title}", 
-        content: "{This is Note Content}", 
+        content: "{This is Note Content}",
+        preview: "{This is Note Preview}",
         date: new Date().toString(), 
         tags: []};
         state.notes = [...state.notes, newNote];

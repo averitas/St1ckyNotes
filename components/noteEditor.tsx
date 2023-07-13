@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Platform, KeyboardAvoidingView, SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
+import { Platform, KeyboardAvoidingView, SafeAreaView, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
 import { Avatar, Surface, Card, PaperProvider, Button, Text, Appbar, TextInput, SurfaceProps } from 'react-native-paper';
 import { FontAwesome } from 'react-native-vector-icons';
 import { Note } from '../types/note';
@@ -9,6 +9,7 @@ import { updateNote } from '../redux/notesSlice';
 import { ConnectedProps, connect } from 'react-redux';
 import ReactMarkdown from 'react-markdown'
 import Markdown from 'react-native-markdown-display';
+import RenderHtml from 'react-native-render-html';
 import TextEditor from './editor/textEditor';
 declare module 'react-native-markdown-display' {
   // https://www.typescriptlang.org/docs/handbook/declaration-merging.html#merging-interfaces
@@ -92,9 +93,13 @@ const NoteEditor = (props:NoteEditorProps) => {
             <ScrollView
               contentInsetAdjustmentBehavior="automatic"
               style={{height: '100%'}}>
-              <Markdown>
+              <RenderHtml
+                contentWidth={editorSurfaceSize?.width ?? 300}
+                source={{ html: noteEditing.content }}
+              />
+              {/* <Markdown>
                 {noteEditing.content}
-              </Markdown>
+              </Markdown> */}
             </ScrollView>
           }
       </Surface>

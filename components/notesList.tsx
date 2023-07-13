@@ -14,6 +14,8 @@ import { Note } from '../types/note';
 import NoteEditor from './noteEditor';
 import { AppDispatch, RootState } from '../redux/store';
 import { addBlankNote } from '../redux/notesSlice';
+import { notesListStatus } from '../redux/actionType';
+import { fetchNotesAsync } from '../redux/actions';
 
 const LeftContent = props => <Avatar.Icon {...props} icon="text" />
 
@@ -33,12 +35,16 @@ const widthPerColumn = 150;
 
 const mapState = (state: RootState) => ({
   NotesList: state.nodesList.notes,
+  ListState:state.nodesList.status,
+  AuthResult: state.authReducer.AuthResult,
+  AuthState: state.authReducer.status,
 })
 
 const mapDispatch = (dispatch: AppDispatch) => {
   return {
     // dispatching plain actions
     addBlankNote: () => dispatch(addBlankNote()),
+    fetchNotes: () => dispatch(fetchNotesAsync()),
   }
 }
 
@@ -66,6 +72,13 @@ const NotesList = (props: NotesListProps) => {
     // flatListRef.current.scrollToIndex({index: props.NotesList.length, animated: true});
     flatListRef.current.scrollToEnd({animated: true});
   }, [props.NotesList]);
+
+  useEffect(() => {
+    // if auth success, then get notes list
+    if (props.AuthResult && props.AuthState === notesListStatus.idle) {
+      props.fetchNotes();
+    }
+  }, [props.AuthResult]);
 
   const getColumns = (size) => {
     if (size == null) {
@@ -107,7 +120,7 @@ const NotesList = (props: NotesListProps) => {
             <Card>
               <Card.Title title={item.title} />
               <Card.Content>
-                <Text variant="bodyMedium">{item.content}</Text>
+                <Text variant="bodyMedium">{item.preview}</Text>
               </Card.Content>
             </Card>
             </View>
@@ -158,7 +171,6 @@ const styles = StyleSheet.create({
     left: "50%",
     width: 400,
     height: 200,
-    background: 'white',
     display: "flex",
     alignItems: "center",
     justifyContent: "center"

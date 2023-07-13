@@ -44,11 +44,48 @@ yarn web
 To run your project, navigate to the directory and run one of the following yarn commands.
 
 - yarn android
+Before you run app on Android emulator, follow [This](https://docs.expo.dev/workflow/android-studio-emulator/)
 - yarn ios # you need to use macOS to build the iOS project - use the Expo app if you need to do iOS development without a Mac
 - yarn web
 
 ### Build
 - eas build --local
+
+#### Build APK
+[Build reference](https://docs.expo.dev/build-reference/apk/)
+```javascript
+eas.json
+{
+  "cli": {
+    "version": ">= 3.13.3"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "production": {}
+  },
+  "submit": {
+    "production": {}
+  }
+}
+```
+
+Build APK
+```
+yarn prebuild
+# Build manually:
+cd android && ./gradlew assembleRelease
+# Build with eas-cli:
+eas build -p android --profile preview
+```
 
 ## 📝 Notes
 

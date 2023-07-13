@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState, AppThunk } from './store';
-import { fetchNotes } from './notesApi';
 import { notesListStatus } from './actionType';
 import { Note } from '../types/note';
 import { v4 as uuidv4 } from 'uuid';
