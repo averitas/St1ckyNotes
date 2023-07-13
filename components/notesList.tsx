@@ -118,9 +118,9 @@ const NotesList = (props: NotesListProps) => {
           }} key={index}>
             <View style={styles.note}>
             <Card>
-              <Card.Title title={item.title} />
+              <Card.Title titleVariant='titleMedium' title={item.title} />
               <Card.Content>
-                <Text variant="bodyMedium">{item.preview}</Text>
+                <Text variant="bodySmall">{item.preview}</Text>
               </Card.Content>
             </Card>
             </View>

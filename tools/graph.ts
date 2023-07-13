@@ -4,7 +4,13 @@
 import {Client} from '@microsoft/microsoft-graph-client';
 import { RemoteNote } from '../types/note';
 
-export async function GetMeNotes(token: string) {
+interface fetchResponse {
+    "@odata.nextLink": string,
+    "@odata.context": string,
+    value: RemoteNote[]
+}
+
+export async function GetMeNotes(token: string): Promise<RemoteNote[]> {
     const graphClient = Client.initWithMiddleware({
       authProvider: {
         getAccessToken: async () => {
@@ -13,12 +19,24 @@ export async function GetMeNotes(token: string) {
       },
     });
 
-    const notes: RemoteNote[] = (await graphClient
+    var resp: fetchResponse = await graphClient
         .api('me/MailFolders/notes/messages')
-        .get()).value;
+        .get();
+    var rawNotes: RemoteNote[] = resp.value;
     
-    console.log("GetMeNotes get response: " + notes);
-    return notes;
+    while (resp['@odata.nextLink']) {
+        resp = await fetch(resp['@odata.nextLink'], {
+            method: 'GET',
+            headers: {
+                'Content-Type':'application/json', 
+                'Authorization': 'Bearer ' + token}
+          })
+          .then(response => response.json());
+        rawNotes.push(...resp.value);
+        console.log("GetMeNotes for loop get response: " + resp);
+    }
+
+    return rawNotes;
 }
 
 export async function UpdateMeNotes(token: string, note: RemoteNote) {
