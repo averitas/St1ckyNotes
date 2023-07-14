@@ -26,4 +26,11 @@ interface RemoteNoteBody {
     content: string;
 }
 
-export { Note, RemoteNote, RemoteNoteBody };
+enum NotesSource {
+    local = "local",
+    outlook = "outlook",
+    onedrive = "onedrive",
+    webdav = "webdav",
+}
+
+export { Note, RemoteNote, RemoteNoteBody, NotesSource };

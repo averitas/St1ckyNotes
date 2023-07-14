@@ -1,6 +1,4 @@
-
-
-export enum notesListStatus {
+export enum NotesListStatus {
     idle = "idle",
     loading = "loading",
     failed = "failed",

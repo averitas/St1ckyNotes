@@ -20,8 +20,8 @@ export default function TextEditor(props: TextEditorProps) {
           <RichEditor
               ref={richText}
               onChange={ descriptionText => {
-                  console.log("descriptionText:", descriptionText);
-                  props.setContent(descriptionText);
+                console.log("descriptionText:", descriptionText);
+                props.setContent(descriptionText);
               }}
           />
         </KeyboardAvoidingView>

@@ -6,9 +6,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { ConnectedProps, connect } from 'react-redux';
 import { AppDispatch, RootState } from '../redux/store';
-import { acquireTokenAsync, initAsync, loginAsync, logoutAsync, setIosEphemeralSession } from '../redux/authSlice';
+import { setIosEphemeralSession } from '../redux/authSlice';
+import { initAsync, loginAsync, logoutAsync, acquireTokenAsync } from '../redux/actions';
 import { MSALWebviewParams } from 'react-native-msal';
-import { notesListStatus } from '../redux/actionType';
+import { NotesListStatus } from '../redux/actionType';
 
 const mapState = (state: RootState) => ({
   AuthResult: state.authReducer.AuthResult,
@@ -41,12 +42,12 @@ interface ProfileProps extends PropsFromRedux {
 const ProfilePage = (props: ProfileProps) => {
 
   React.useEffect(() => {
-    if (props.AuthResult === null && props.status === notesListStatus.idle) {
+    if (!props.AuthResult && props.status === NotesListStatus.idle) {
       props.navigation.navigate('Login');
     }
   }, [props.AuthResult]);
 
-  if (props.status === notesListStatus.loading) {
+  if (props.status === NotesListStatus.loading) {
     return (
       <Surface style={styles.surface} elevation={4}>
         <ActivityIndicator animating={true} color={MD2Colors.red800} />

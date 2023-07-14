@@ -14,7 +14,7 @@ import { Note } from '../types/note';
 import NoteEditor from './noteEditor';
 import { AppDispatch, RootState } from '../redux/store';
 import { addBlankNote } from '../redux/notesSlice';
-import { notesListStatus } from '../redux/actionType';
+import { NotesListStatus } from '../redux/actionType';
 import { fetchNotesAsync } from '../redux/actions';
 
 const LeftContent = props => <Avatar.Icon {...props} icon="text" />
@@ -75,9 +75,12 @@ const NotesList = (props: NotesListProps) => {
 
   useEffect(() => {
     // if auth success, then get notes list
-    if (props.AuthResult && props.AuthState === notesListStatus.idle) {
+    if (props.AuthResult && props.AuthState === NotesListStatus.idle) {
+      console.log("NotesList: AuthResult success, start fetch notes");
       props.fetchNotes();
+      return;
     }
+    console.log("NotesList: AuthResult is null, skip fetch notes");
   }, [props.AuthResult]);
 
   const getColumns = (size) => {
