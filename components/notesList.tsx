@@ -15,7 +15,7 @@ import NoteEditor from './noteEditor';
 import { AppDispatch, RootState } from '../redux/store';
 import { addBlankNote } from '../redux/notesSlice';
 import { NotesListStatus } from '../redux/actionType';
-import { fetchNotesAsync } from '../redux/actions';
+import { FetchNotesAsync } from '../redux/actions';
 
 const LeftContent = props => <Avatar.Icon {...props} icon="text" />
 
@@ -44,7 +44,7 @@ const mapDispatch = (dispatch: AppDispatch) => {
   return {
     // dispatching plain actions
     addBlankNote: () => dispatch(addBlankNote()),
-    fetchNotes: () => dispatch(fetchNotesAsync()),
+    fetchNotes: () => dispatch(FetchNotesAsync()),
   }
 }
 
@@ -113,7 +113,7 @@ const NotesList = (props: NotesListProps) => {
         key={numColumns}
         data={props.NotesList}
         numColumns={numColumns}
-        keyExtractor={(note) => note.id}
+        keyExtractor={(note, index) => String(index)}
         renderItem={({ item, index }) => (
           <TouchableOpacity onPress={() => {
             // Go to edit page

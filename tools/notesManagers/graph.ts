@@ -47,16 +47,16 @@ export class GraphNotesManager implements NotesManager {
         return rawNotes;
     }
 
-    public async UpdateMeNotes(note: RemoteNote) {
-        const resp = await this.graphClient
+    public async UpdateMeNotes(note: RemoteNote): Promise<RemoteNote> {
+        const resp: RemoteNote = await this.graphClient
             .api('me/MailFolders/notes/messages/' + note.id)
             .patch(note);
         console.log("UpdateMeNotes response: " + resp);
         return resp;
     }
 
-    public async CreateMeNotes(note: RemoteNote) {
-        const resp = await this.graphClient
+    public async CreateMeNotes(note: RemoteNote): Promise<RemoteNote> {
+        const resp: RemoteNote = await this.graphClient
             .api('me/MailFolders/notes/messages')
             .post(note);
         console.log("CreateMeNotes response: " + resp);

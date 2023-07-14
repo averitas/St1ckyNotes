@@ -1,12 +1,13 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { AppDispatch, AppThunk, RootState } from '../redux/store';
-import { GetNotesManager, SetNotesManager } from '../redux/notesSlice';
+import { GetNotesManager, SetNotesManager, deleteNote, updateNote } from '../redux/notesSlice';
 import { GraphNotesManager } from '../tools/notesManagers/graph';
 import { Note, NotesSource, RemoteNote } from '../types/note';
 import { selectAccessToken, selectNotesSource } from './selectors';
 import { MSALWebviewParams } from 'react-native-msal';
 import { GetB2cClient, InitMsalB2cClient } from './authSlice';
 import { config } from '../tools/msal';
+import { v4 as uuidv4 } from 'uuid';
 
 /// Notes Thunks functions
 // We can also write thunks by hand, which may contain both sync and async logic.
@@ -32,7 +33,7 @@ export const initNotesManager =
     }
 };
 
-export const fetchNotesAsync = createAsyncThunk(
+export const FetchNotesAsync = createAsyncThunk(
   'notes/fetchNotes',
   async (_, { getState, dispatch }) => {
     const rootState = getState() as RootState;
@@ -53,13 +54,106 @@ export const fetchNotesAsync = createAsyncThunk(
             id: remoteNote.id,
             title: remoteNote.subject,
             content: remoteNote.body.content,
-            date: remoteNote.lastModifiedDateTime,
+            date: new Date(remoteNote.lastModifiedDateTime).toISOString(),
             tags: remoteNote.categories,
-            preview: remoteNote.bodyPreview.length > 50 ? remoteNote.bodyPreview.substring(0, 50) : remoteNote.bodyPreview
+            preview: remoteNote.bodyPreview.substring(0, 50),
+            isDraft: false,
+            localId: uuidv4(),
         })
     });
 
     return notesList;
+  }
+);
+
+// create new note please call addBlankNote function first.
+export const UpdateNotesAsync = createAsyncThunk(
+  'notes/updateNotes',
+  async (NoteToUpdate: Note, { getState, dispatch }) => {
+    const rootState = getState() as RootState;
+    if (!rootState.authReducer.AuthResult) {
+        console.log("AuthResult is null, cannot update notes.");
+        return null
+    }
+    
+    if (!GetNotesManager()) {
+        dispatch(initNotesManager());
+    }
+    var rawNotesToUpdate: RemoteNote = {
+        id: NoteToUpdate.id,
+        categories: NoteToUpdate.tags,
+        subject: NoteToUpdate.title,
+        body: {
+            contentType: "html",
+            content: NoteToUpdate.content
+        },
+    } as RemoteNote;
+
+    const resp = await GetNotesManager().UpdateMeNotes(rawNotesToUpdate);
+
+    // update the existing note timestamp
+    const newNote = {...NoteToUpdate, 
+      date: new Date().toISOString(),
+      preview: resp.bodyPreview.substring(0, 50),
+    } as Note;
+    dispatch(updateNote(newNote));
+    return newNote;
+  }
+);
+
+export const CreateNotesAsync = createAsyncThunk(
+  'notes/createNotes',
+  async (NoteToUpdate: Note, { getState, dispatch }) => {
+    const rootState = getState() as RootState;
+    if (!rootState.authReducer.AuthResult) {
+        console.log("AuthResult is null, cannot create notes.");
+        return null
+    }
+
+    if (!GetNotesManager()) {
+        dispatch(initNotesManager());
+    }
+    var rawNotesToUpdate: RemoteNote = {
+        categories: NoteToUpdate.tags,
+        subject: NoteToUpdate.title,
+        body: {
+            contentType: "html",
+            content: NoteToUpdate.content
+        },
+    } as RemoteNote;
+
+    const resp = await GetNotesManager().CreateMeNotes(rawNotesToUpdate);
+
+    const newNote = {
+      ...NoteToUpdate, 
+      date: new Date().toISOString(), 
+      isDraft: false, 
+      preview: resp.bodyPreview.substring(0, 50),
+      id: resp.id,
+    } as Note;
+    // update the existing note timestamp
+    dispatch(updateNote(newNote));
+    return newNote;
+  }
+);
+
+export const DeleteNotesAsync = createAsyncThunk(
+  'notes/deleteNotes',
+  async (NoteToUpdate: Note, { getState, dispatch }) => {
+    const rootState = getState() as RootState;
+    if (!rootState.authReducer.AuthResult) {
+        console.log("AuthResult is null, cannot delete notes.");
+        return []
+    }
+    
+    if (!GetNotesManager()) {
+        dispatch(initNotesManager());
+    }
+    const resp = await GetNotesManager().DeleteMeNotes(NoteToUpdate.id);
+
+    // update the existing note timestamp
+    dispatch(deleteNote(NoteToUpdate));
+    return resp;
   }
 );
 
