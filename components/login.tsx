@@ -6,14 +6,17 @@ import React from 'react';
 import { Platform, SafeAreaView, ScrollView, StyleSheet, Switch, Text, View, TouchableOpacity } from 'react-native';
 import { ConnectedProps, connect } from 'react-redux';
 import { AppDispatch, RootState } from '../redux/store';
-import { initAsync, loginAsync, logoutAsync, acquireTokenAsync, setIosEphemeralSession } from '../redux/authSlice';
+import { setIosEphemeralSession } from '../redux/authSlice';
+import { initAsync, loginAsync, logoutAsync, acquireTokenAsync } from '../redux/actions';
+import { NotesListStatus } from '../redux/actionType';
 import { MSALWebviewParams } from 'react-native-msal';
-import { Divider, List, Surface } from 'react-native-paper';
+import { ActivityIndicator, Divider, List, MD2Colors, Surface } from 'react-native-paper';
 
 const mapState = (state: RootState) => ({
   AuthResult: state.authReducer.AuthResult,
   webviewParam: state.authReducer.webviewParameters,
   iosEphemeralSession: state.authReducer.iosEphemeralSession,
+  status: state.authReducer.status,
 })
 
 const mapDispatch = (dispatch: AppDispatch) => {
@@ -42,8 +45,18 @@ const LoginPage = (props: LoginProps) => {
     props.initAsync();
   }, []);
 
-  if (props.AuthResult) {
-    props.navigation.navigate('Profile');
+  React.useEffect(() => {
+    if (props.AuthResult && props.status === NotesListStatus.idle) {
+      props.navigation.navigate('Profile');
+    }
+  }, [props.AuthResult]);
+
+  if (props.status === NotesListStatus.loading) {
+    return (
+      <Surface style={styles.surface} elevation={4}>
+        <ActivityIndicator animating={true} color={MD2Colors.red800} />
+      </Surface>
+    )
   }
 
   return (

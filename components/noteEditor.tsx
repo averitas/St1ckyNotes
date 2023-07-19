@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Platform, KeyboardAvoidingView, SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
+import { Platform, KeyboardAvoidingView, SafeAreaView, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
 import { Avatar, Surface, Card, PaperProvider, Button, Text, Appbar, TextInput, SurfaceProps } from 'react-native-paper';
 import { FontAwesome } from 'react-native-vector-icons';
 import { Note } from '../types/note';
@@ -9,6 +9,9 @@ import { updateNote } from '../redux/notesSlice';
 import { ConnectedProps, connect } from 'react-redux';
 import ReactMarkdown from 'react-markdown'
 import Markdown from 'react-native-markdown-display';
+import RenderHtml from 'react-native-render-html';
+import TextEditor from './editor/textEditor';
+import { CreateNotesAsync, UpdateNotesAsync } from '../redux/actions';
 declare module 'react-native-markdown-display' {
   // https://www.typescriptlang.org/docs/handbook/declaration-merging.html#merging-interfaces
   interface MarkdownProps {
@@ -25,7 +28,7 @@ const useComponentSize = () => {
 
   const onLayout = useCallback(event => {
     const { width, height } = event.nativeEvent.layout;
-    console.log("layout is " + event.nativeEvent.layout)
+    console.log('Editor Width: %d, height: %d', width, height)
     setSize({ width, height });
   }, []);
 
@@ -36,6 +39,8 @@ const mapDispatch = (dispatch: AppDispatch) => {
   return {
     // dispatching plain actions
     updateNote: (note: Note) => dispatch(updateNote(note)),
+    UpdateNoteAsync: (note: Note) => dispatch(UpdateNotesAsync(note)),
+    CreateNoteAsync: (note: Note) => dispatch(CreateNotesAsync(note)),
   }
 }
 
@@ -52,6 +57,17 @@ interface NoteEditorProps extends PropsFromRedux {
 const handleHead = ({tintColor}) => <Text style={{color: tintColor}}>H1</Text>
 const NoteEditor = (props:NoteEditorProps) => {
   const editorSurface = React.useRef<View>();
+
+  useEffect(() => {
+    for (let i = 0; i < props.NotesList.length; i++) {
+      if (props.NotesList[i].localId === noteEditing.localId) {
+        console.log('Found the note that updated, id: ' + props.NotesList[i].id, ", localId: " + noteEditing.localId);
+        setNoteEditing(props.NotesList[i]);
+        break;
+      }
+    }
+  }, [props.NotesList])
+
   // use header to switch between edit and view mode.
   const [isEditing, setIsEditing] = useState<boolean>(false)
   const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false)
@@ -70,33 +86,38 @@ const NoteEditor = (props:NoteEditorProps) => {
             setNoteEditing({...noteEditing, title: text})
           }} onBlur={e => setIsEditingTitle(false)} /> :
           <Text variant="headlineSmall" onPress={e => setIsEditingTitle(true)}>{noteEditing.title}</Text>} />
-        <Appbar.Action icon="content-save" onPress={() => {
-          props.updateNote({...noteEditing, date: new Date().toString()});
+        <Appbar.Action icon="content-save" onPress={async () => {
+          if (noteEditing.isDraft) {
+            await props.CreateNoteAsync({...noteEditing, date: new Date().toISOString()});
+          } else {
+            await props.UpdateNoteAsync({...noteEditing, date: new Date().toISOString()});
+          }
         }} />
         <Appbar.Action icon={isEditing ? "eye" : "file-document-edit"} onPress={() => {
           setIsEditing(!isEditing);
         }} />
       </Appbar.Header>
       <Surface 
-        style={styles.surface} 
+        style={styles.surface}
         ref={editorSurface}
         onLayout={onEditorSurfaceLayout}
         >
           {
-            isEditing ? 
-            <TextInput
-              multiline={true}
-              value={noteEditing.content}
-              onChangeText={text => setNoteEditing({...noteEditing, content: text})}
-                style={{ flex: 1, height: editorSurfaceSize?.height ?? 500 }}
-              contentStyle={styles.textInputContent}
-            /> : 
+            isEditing ? (<TextEditor 
+              setContent={(content) => {setNoteEditing({...noteEditing, content: content})}} 
+              content={noteEditing.content}
+              width={editorSurfaceSize?.width ?? 300}
+              height={editorSurfaceSize?.width ?? 600}/>) :
             <ScrollView
               contentInsetAdjustmentBehavior="automatic"
               style={{height: '100%'}}>
-              <Markdown>
+              <RenderHtml
+                contentWidth={editorSurfaceSize?.width ?? 300}
+                source={{ html: noteEditing.content }}
+              />
+              {/* <Markdown>
                 {noteEditing.content}
-              </Markdown>
+              </Markdown> */}
             </ScrollView>
           }
       </Surface>

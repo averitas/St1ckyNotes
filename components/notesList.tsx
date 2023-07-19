@@ -14,6 +14,8 @@ import { Note } from '../types/note';
 import NoteEditor from './noteEditor';
 import { AppDispatch, RootState } from '../redux/store';
 import { addBlankNote } from '../redux/notesSlice';
+import { NotesListStatus } from '../redux/actionType';
+import { FetchNotesAsync } from '../redux/actions';
 
 const LeftContent = props => <Avatar.Icon {...props} icon="text" />
 
@@ -33,12 +35,16 @@ const widthPerColumn = 150;
 
 const mapState = (state: RootState) => ({
   NotesList: state.nodesList.notes,
+  ListState:state.nodesList.status,
+  AuthResult: state.authReducer.AuthResult,
+  AuthState: state.authReducer.status,
 })
 
 const mapDispatch = (dispatch: AppDispatch) => {
   return {
     // dispatching plain actions
     addBlankNote: () => dispatch(addBlankNote()),
+    fetchNotes: () => dispatch(FetchNotesAsync()),
   }
 }
 
@@ -63,8 +69,19 @@ const NotesList = (props: NotesListProps) => {
     if (props.NotesList.length === 0) {
       return;
     }
-    flatListRef.current.scrollToIndex({index: 0, animated: true});
+    // flatListRef.current.scrollToIndex({index: props.NotesList.length, animated: true});
+    flatListRef.current.scrollToEnd({animated: true});
   }, [props.NotesList]);
+
+  useEffect(() => {
+    // if auth success, then get notes list
+    if (props.AuthResult && props.AuthState === NotesListStatus.idle) {
+      console.log("NotesList: AuthResult success, start fetch notes");
+      props.fetchNotes();
+      return;
+    }
+    console.log("NotesList: AuthResult is null, skip fetch notes");
+  }, [props.AuthResult]);
 
   const getColumns = (size) => {
     if (size == null) {
@@ -87,39 +104,37 @@ const NotesList = (props: NotesListProps) => {
 
   return (
     <Surface style={styles.surface} elevation={4} onLayout={onLayout}>
-      <ScrollView style={{maxHeight: size?.height != null ? size.height : "100%", flex: 1}} contentContainerStyle={{flex: 1, maxHeight: "100%"}}>
-        <FlatList
-          ref={flatListRef}
-          scrollToOverflowEnabled={true}
-          contentContainerStyle={{flex: 1, maxHeight: "100%"}}
-          style={{flex: 1, maxHeight: "100%"}}
-          inverted={true}
-          key={numColumns}
-          data={props.NotesList}
-          numColumns={numColumns}
-          keyExtractor={(note) => note.id}
-          renderItem={({ item, index }) => (
-            <TouchableOpacity onPress={() => {
-              // Go to edit page
-              props.navigation.navigate('NoteEditor', {note: item})
-            }}>
-              <View style={styles.note}>
-              <Card>
-                <Card.Title title={item.title} />
-                <Card.Content>
-                  <Text variant="bodyMedium">{item.content}</Text>
-                </Card.Content>
-              </Card>
-              </View>
-            </TouchableOpacity>
-          )}
-        />
-      </ScrollView>
-        <FAB
-          icon="plus"
-          style={styles.addFab}
-          onPress={props.addBlankNote}
-        />
+      <FlatList
+        ref={flatListRef}
+        scrollToOverflowEnabled={true}
+        contentContainerStyle={{flexGrow: 1, alignContent: 'space-around', justifyContent: 'flex-start', width: '100%', marginHorizontal: "5%"}}
+        style={{flexGrow: 1, width: "100%", alignSelf: 'flex-start', alignContent: 'flex-start'}}
+        inverted={true}
+        key={numColumns}
+        data={props.NotesList}
+        numColumns={numColumns}
+        keyExtractor={(note, index) => String(index)}
+        renderItem={({ item, index }) => (
+          <TouchableOpacity onPress={() => {
+            // Go to edit page
+            props.navigation.navigate('NoteEditor', {note: item})
+          }} key={index}>
+            <View style={styles.note}>
+            <Card>
+              <Card.Title titleVariant='titleMedium' title={item.title} />
+              <Card.Content>
+                <Text variant="bodySmall">{item.preview}</Text>
+              </Card.Content>
+            </Card>
+            </View>
+          </TouchableOpacity>
+        )}
+      />
+      <FAB
+        icon="plus"
+        style={styles.addFab}
+        onPress={props.addBlankNote}
+      />
     </Surface>
   );
 };
@@ -159,7 +174,6 @@ const styles = StyleSheet.create({
     left: "50%",
     width: 400,
     height: 200,
-    background: 'white',
     display: "flex",
     alignItems: "center",
     justifyContent: "center"
