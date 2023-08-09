@@ -4,7 +4,7 @@ import { GetNotesManager, SetNotesManager, deleteNote, updateNote } from '../red
 import { GraphNotesManager } from '../tools/notesManagers/graph';
 import { Note, NotesSource, RemoteNote } from '../types/note';
 import { selectAccessToken, selectNotesSource } from './selectors';
-import { MSALWebviewParams } from 'react-native-msal';
+import { MSALPromptType, MSALWebviewParams } from 'react-native-msal';
 import { GetB2cClient, InitMsalB2cClient } from './authSlice';
 import { config } from '../tools/msal';
 import { v4 as uuidv4 } from 'uuid';
@@ -23,8 +23,10 @@ export const initNotesManager =
         if (!accessToken) {
           throw new Error('Access token is null, cannot init notes manager.');
         }
-        console.log("Init Graph notes manager with access token: " + accessToken)
-        SetNotesManager(new GraphNotesManager(accessToken));
+        const b2cClient = GetB2cClient();
+        if (b2cClient) {
+          SetNotesManager(new GraphNotesManager(GetB2cClient()));
+        }
         break;
     
       default:
@@ -168,7 +170,7 @@ export const loginAsync = createAsyncThunk(
           throw new Error("b2cClient is null");
       }
       try {
-          const res = await b2cClient.signIn({ scopes: config.auth.scopes, webviewParameters });
+          const res = await b2cClient.signIn({ scopes: config.auth.appScopes, webviewParameters });
           return res;
       } catch (error) {
           console.warn(error);
@@ -200,15 +202,17 @@ export const initAsync = createAsyncThunk(
           InitMsalB2cClient();
       }
       const b2cClient = GetB2cClient();
+      let isSignedIn = false;
       try {
           await b2cClient.init();
-          const isSignedIn = await b2cClient.isSignedIn();
+          isSignedIn = await b2cClient.isSignedIn();
           if (isSignedIn) {
-            return await b2cClient.acquireTokenSilent({ scopes: config.auth.scopes });
+            return await b2cClient.acquireTokenSilent({ scopes: config.auth.appScopes });
           }
           console.log("auth client init complete");
       } catch (error) {
-          console.error(error);
+          console.log("retrieve token error, reset login state");
+          console.error("init and acquire token silently error: " + error);
       }
       return null;
   }
