@@ -26,24 +26,31 @@ export class GraphNotesManager implements NotesManager {
         this.token = token;
     }
 
+    public async GetAvatar(): Promise<Blob> {
+        const resp = await this.graphClient
+            .api('me/photo/$value')
+            .get();
+        return resp;
+    }
+
     public async GetMeNotes(): Promise<RemoteNote[]> {
         var resp: fetchResponse = await this.graphClient
             .api('me/MailFolders/notes/messages')
             .get();
         var rawNotes: RemoteNote[] = resp.value;
-        
+
         while (resp['@odata.nextLink']) {
             resp = await fetch(resp['@odata.nextLink'], {
                 method: 'GET',
                 headers: {
-                    'Content-Type':'application/json', 
+                    'Content-Type':'application/json',
                     'Authorization': 'Bearer ' + this.token}
               })
               .then(response => response.json());
             rawNotes.push(...resp.value);
             console.log("GetMeNotes for loop get response: " + resp);
         }
-    
+
         return rawNotes;
     }
 

@@ -42,10 +42,6 @@ interface LoginProps extends PropsFromRedux {
 
 const LoginPage = (props: LoginProps) => {
   React.useEffect(() => {
-    props.initAsync();
-  }, []);
-
-  React.useEffect(() => {
     if (props.AuthResult && props.status === NotesListStatus.idle) {
       props.navigation.navigate('Profile');
     }
@@ -82,8 +78,8 @@ const LoginPage = (props: LoginProps) => {
           {props.AuthResult ? (
             <List.Item title="Not Login" left={() => <List.Icon icon="account-alert" />} />
           ) : (
-            <List.Item title="Sign In" 
-              description="Login your microsoft account" 
+            <List.Item title="Sign In"
+              description="Login your microsoft account"
               left={props => <List.Icon {...props} icon="account-arrow-left" />}
               onPress={() => props.loginAsync(props.webviewParam)}
             />
