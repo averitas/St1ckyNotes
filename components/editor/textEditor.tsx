@@ -29,7 +29,7 @@ export default function TextEditor(props: TextEditorProps) {
 
       <RichToolbar
         editor={richText}
-        actions={[ actions.setBold, actions.setItalic, actions.setUnderline, actions.heading1 ]}
+        actions={[ actions.setBold, actions.setItalic, actions.setUnderline, actions.heading1, actions.heading2, actions.heading3, actions.fontSize, actions.fontSize, ]}
         iconMap={{ [actions.heading1]: handleHead }}
       />
     </SafeAreaView>

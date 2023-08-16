@@ -4,6 +4,7 @@
 import {Client} from '@microsoft/microsoft-graph-client';
 import { RemoteNote } from '../../types/note';
 import { NotesManager } from './notesManager';
+import { B2CClient, config } from '../msal';
 
 interface fetchResponse {
     "@odata.nextLink": string,
@@ -13,17 +14,21 @@ interface fetchResponse {
 
 export class GraphNotesManager implements NotesManager {
     private graphClient: Client;
-    private token: string;
+    private publicClient: B2CClient;
+    private token: string = "";
 
-    constructor(token: string) {
+    constructor(publicClient: B2CClient) {
         this.graphClient = Client.initWithMiddleware({
             authProvider: {
               getAccessToken: async () => {
-                return token;
+                const tokenRes = await publicClient.acquireTokenSilent({scopes: config.auth.scopes});
+                console.log("GraphNotesManager getAccessToken response: " + tokenRes.accessToken);
+                this.token = tokenRes.accessToken;
+                return tokenRes.accessToken;
               }
             },
         });
-        this.token = token;
+        this.publicClient = publicClient;
     }
 
     public async GetAvatar(): Promise<Blob> {

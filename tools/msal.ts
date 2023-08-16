@@ -21,7 +21,8 @@ export const config: B2CConfiguration = {
         android: "msauth://com.lewissveritas.st1ckynotes/XnpqLhDbpIT8JYmsymSwAWNlMj0%3D",
         web: "http://localhost:19006"
     }),
-    scopes: [ 'https://graph.microsoft.com/User.Read', 'https://graph.microsoft.com/Mail.ReadWrite' ]
+    scopes: [ 'https://graph.microsoft.com/User.Read', 'https://graph.microsoft.com/Mail.ReadWrite' ],
+    appScopes: [ 'api://84771574-3cfe-442d-964f-c9fc3db201ce/Notes' ],
   },
   cache: {cacheLocation: 'localStorage'}
 };
@@ -32,6 +33,7 @@ export type B2CConfiguration = Omit<MSALConfiguration, 'auth'> & {
       authority: string;
       redirectUri?: string;
       scopes: Array<string>;
+      appScopes: Array<string>;
     };
   };
 
@@ -54,6 +56,9 @@ export class B2CClient {
     }
   
     public async init() {
+      if (Platform.OS === 'web') {
+        sessionStorage.removeItem('msal.interaction.status');
+      }
       await this.pca.init();
       console.log("PCA init finished");
       return this;
@@ -66,7 +71,7 @@ export class B2CClient {
       console.log("PCA start signin")
       const isSignedIn = await this.isSignedIn();
       if (isSignedIn) {
-        throw Error('A user is already signed in');
+        console.warn('A user is already signed in')
       }
   
       try {
@@ -90,6 +95,7 @@ export class B2CClient {
         // We provide the account that we got when we signed in, with the matching sign in sign up authority
         // Which again, we set as the default authority so we don't need to provide it explicitly.
         try {
+          console.log('acquire token silent of scope: ' + params.scopes);
           const result = await this.pca.acquireTokenSilent({ ...params, account });
           if (!result) {
             throw new Error('Could not acquire token silently: Result was undefined.');
@@ -106,6 +112,7 @@ export class B2CClient {
     /** Returns true if a user is signed in, false if not */
     public async isSignedIn() {
       const signInAccount = await this.getAccountForPolicy();
+      console.log('user claim: ' + signInAccount)
       return signInAccount !== undefined;
     }
   

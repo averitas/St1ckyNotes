@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Platform, KeyboardAvoidingView, SafeAreaView, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
-import { Avatar, Surface, Card, PaperProvider, Button, Text, Appbar, TextInput, SurfaceProps } from 'react-native-paper';
+import { Avatar, Surface, Card, PaperProvider, Button, Text, Appbar, TextInput, SurfaceProps, Portal } from 'react-native-paper';
 import { FontAwesome } from 'react-native-vector-icons';
 import { Note } from '../types/note';
 import { v4 as uuidv4 } from 'uuid';
@@ -12,6 +12,7 @@ import Markdown from 'react-native-markdown-display';
 import RenderHtml from 'react-native-render-html';
 import TextEditor from './editor/textEditor';
 import { CreateNotesAsync, UpdateNotesAsync } from '../redux/actions';
+import ChatBox from './chatBox';
 declare module 'react-native-markdown-display' {
   // https://www.typescriptlang.org/docs/handbook/declaration-merging.html#merging-interfaces
   interface MarkdownProps {
@@ -72,8 +73,13 @@ const NoteEditor = (props:NoteEditorProps) => {
   const [isEditing, setIsEditing] = useState<boolean>(false)
   const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false)
   const [noteEditing, setNoteEditing] = useState<Note>(props.route.params.note)
+  const [isChatVisible, setIsChatVisible] = useState<boolean>(false)
 
   const [editorSurfaceSize, onEditorSurfaceLayout] = useComponentSize();
+
+  const toggleChat = () => {
+    setIsChatVisible(!isChatVisible);
+  };
 
    // TODO: Add a text editor here.
   return (
@@ -96,12 +102,24 @@ const NoteEditor = (props:NoteEditorProps) => {
         <Appbar.Action icon={isEditing ? "eye" : "file-document-edit"} onPress={() => {
           setIsEditing(!isEditing);
         }} />
+        <Appbar.Action icon="chat-outline" onPress={toggleChat} />
       </Appbar.Header>
       <Surface 
         style={styles.surface}
         ref={editorSurface}
         onLayout={onEditorSurfaceLayout}
         >
+          {isChatVisible &&
+          <Portal>
+            <ChatBox 
+              onClose={() => setIsChatVisible(false)}
+              visible={isChatVisible}
+              setVisible={setIsChatVisible}
+              noteEditing={noteEditing}
+              setNoteEditing={setNoteEditing}
+              />
+          </Portal>
+           }
           {
             isEditing ? (<TextEditor 
               setContent={(content) => {setNoteEditing({...noteEditing, content: content})}} 
