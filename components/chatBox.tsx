@@ -69,4 +69,4 @@ const ChatBox = (props: ChatBoxProps) => {
   );
 };
   
-  export default connector(ChatBox);
+export default connector(ChatBox);
