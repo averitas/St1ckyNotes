@@ -26,12 +26,35 @@ export const initNotesManager =
         console.log("Init Graph notes manager with access token: " + accessToken)
         SetNotesManager(new GraphNotesManager(accessToken));
         break;
-    
+
       default:
         console.error(`Invalid source type: [${sourceType}}], not ready yet.`);
         break;
     }
 };
+
+export const GetAvatarAsync = createAsyncThunk(
+  'notes/getAvatar',
+  async (_, { getState, dispatch }) => {
+    const rootState = getState() as RootState;
+    if (!rootState.authReducer.AuthResult) {
+        console.log("AuthResult is null, cannot fetch avatar.");
+        return [];
+    }
+
+    if (!GetNotesManager()) {
+        dispatch(initNotesManager());
+    }
+    console.log("Notes Manager is: " + GetNotesManager());
+    try {
+      const avatar = await GetNotesManager().GetAvatar();
+      return URL.createObjectURL(avatar);
+    } catch(err) {
+      console.log('Failed to catch avatar!');
+      return null;
+    }
+  }
+);
 
 export const FetchNotesAsync = createAsyncThunk(
   'notes/fetchNotes',
@@ -41,7 +64,7 @@ export const FetchNotesAsync = createAsyncThunk(
         console.log("AuthResult is null, cannot fetch notes.");
         return []
     }
-    
+
     if (!GetNotesManager()) {
         dispatch(initNotesManager());
     }
@@ -75,7 +98,7 @@ export const UpdateNotesAsync = createAsyncThunk(
         console.log("AuthResult is null, cannot update notes.");
         return null
     }
-    
+
     if (!GetNotesManager()) {
         dispatch(initNotesManager());
     }
@@ -92,7 +115,7 @@ export const UpdateNotesAsync = createAsyncThunk(
     const resp = await GetNotesManager().UpdateMeNotes(rawNotesToUpdate);
 
     // update the existing note timestamp
-    const newNote = {...NoteToUpdate, 
+    const newNote = {...NoteToUpdate,
       date: new Date().toISOString(),
       preview: resp.bodyPreview.substring(0, 50),
     } as Note;
@@ -125,9 +148,9 @@ export const CreateNotesAsync = createAsyncThunk(
     const resp = await GetNotesManager().CreateMeNotes(rawNotesToUpdate);
 
     const newNote = {
-      ...NoteToUpdate, 
-      date: new Date().toISOString(), 
-      isDraft: false, 
+      ...NoteToUpdate,
+      date: new Date().toISOString(),
+      isDraft: false,
       preview: resp.bodyPreview.substring(0, 50),
       id: resp.id,
     } as Note;
@@ -145,7 +168,7 @@ export const DeleteNotesAsync = createAsyncThunk(
         console.log("AuthResult is null, cannot delete notes.");
         return []
     }
-    
+
     if (!GetNotesManager()) {
         dispatch(initNotesManager());
     }

@@ -9,6 +9,7 @@ import { TouchableOpacity } from "react-native";
 
 const MainStack = createNativeStackNavigator();
 const Main = () => {
+
   return (
     <MainStack.Navigator
         screenOptions={({ navigation, route }) => ({
@@ -18,13 +19,13 @@ const Main = () => {
         initialRouteName="Notes"
       >
         <MainStack.Screen
-          name="Notes" component={NotesList} 
+          name="Notes" component={NotesList}
         />
         <MainStack.Screen
           options={({ navigation, route }) => ({
             headerShown: false,
           })}
-          name="NoteEditor" component={NoteEditor} 
+          name="NoteEditor" component={NoteEditor}
         />
     </MainStack.Navigator>
   );
