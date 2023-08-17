@@ -29,8 +29,6 @@ const connector = connect(mapState, mapDispatch);
 type PropsFromRedux = ConnectedProps<typeof connector>;
 
 interface AppProps extends PropsFromRedux {
-  navigation: any;
-  route: any;
 }
 const Tab = createBottomTabNavigator();
 

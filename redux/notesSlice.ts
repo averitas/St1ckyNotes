@@ -36,7 +36,7 @@ export const notesListSlice = createSlice({
   reducers: {
     addBlankNote: (state) => {
       const newNote: Note = {
-        id: uuidv4(), // Id that sync with remote.
+        id: "", // Id that sync with remote.
         localId: uuidv4(), // a draft version of id. Will update when upload to remote.
         title: "{Note title}", 
         content: "{This is Note Content}",

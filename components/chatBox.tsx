@@ -35,11 +35,22 @@ interface ChatBoxProps extends PropsFromRedux {
   setVisible: (v: boolean) => void;
   noteEditing: Note;
   setNoteEditing: (note: Note) => void;
+  setError: (error: string) => void;
 }
 
 const ChatBox = (props: ChatBoxProps) => {
   const [chatText, setChatText] = useState('');
   const containerStyle = {backgroundColor: 'white', padding: 5, margin: 5, borderRadius: 5};
+
+  const submitMessage = (message: string) => {
+    console.log("Submit message: " + message)
+    if (!props.noteEditing.id) {
+      props.setError('Please save the note before asking questions.')
+      return;
+    }
+
+    // TODO: send the message to the server.
+  }
 
   // TODO: Add a text editor here.
   return (
@@ -54,14 +65,14 @@ const ChatBox = (props: ChatBoxProps) => {
         <Surface style={{alignContent: 'center', flexDirection: 'row', flex: 1}}>
           <TextInput
             label="Ask question about this note."
-            contentStyle={{fontSize: 10}}
+            contentStyle={{fontSize: 15}}
             value={chatText}
             onChangeText={(text) => setChatText(text)}
-            onSubmitEditing={e => {console.log(e.nativeEvent.text)}}
+            onSubmitEditing={e => submitMessage(e.nativeEvent.text)}
             style={{borderRadius: 5, width: '100%', flex: 8}}
-            right={<TextInput.Icon icon="send" onPress={e => {
-              console.log(chatText)
-            }} style={{alignContent: 'center', justifyContent: 'center', alignSelf: 'center'}} />}
+            right={<TextInput.Icon icon="send" 
+                    onPress={e => submitMessage(chatText)}
+                    style={{alignContent: 'center', justifyContent: 'center', alignSelf: 'center'}} />}
           />
         </Surface>
       </Surface>

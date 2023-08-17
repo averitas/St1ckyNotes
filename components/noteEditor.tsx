@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Platform, KeyboardAvoidingView, SafeAreaView, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
-import { Avatar, Surface, Card, PaperProvider, Button, Text, Appbar, TextInput, SurfaceProps, Portal } from 'react-native-paper';
+import { Avatar, Surface, Card, PaperProvider, Button, Text, Appbar, TextInput, SurfaceProps, Portal, Snackbar } from 'react-native-paper';
 import { FontAwesome } from 'react-native-vector-icons';
 import { Note } from '../types/note';
 import { v4 as uuidv4 } from 'uuid';
@@ -74,12 +74,24 @@ const NoteEditor = (props:NoteEditorProps) => {
   const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false)
   const [noteEditing, setNoteEditing] = useState<Note>(props.route.params.note)
   const [isChatVisible, setIsChatVisible] = useState<boolean>(false)
+  const [warnVisible, setWarnVisible] = React.useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = React.useState<string>('');
 
   const [editorSurfaceSize, onEditorSurfaceLayout] = useComponentSize();
 
   const toggleChat = () => {
     setIsChatVisible(!isChatVisible);
   };
+
+  const toggleWarning = () => {
+    setWarnVisible(!warnVisible);
+    setErrorMessage('');
+  }
+
+  const showError = (error: string) => {
+    setErrorMessage(error);
+    setWarnVisible(true);
+  }
 
    // TODO: Add a text editor here.
   return (
@@ -117,6 +129,7 @@ const NoteEditor = (props:NoteEditorProps) => {
               setVisible={setIsChatVisible}
               noteEditing={noteEditing}
               setNoteEditing={setNoteEditing}
+              setError={showError}
               />
           </Portal>
            }
@@ -139,6 +152,22 @@ const NoteEditor = (props:NoteEditorProps) => {
             </ScrollView>
           }
       </Surface>
+      {
+        warnVisible &&
+        <Portal>
+          <Snackbar
+            visible={warnVisible}
+            style={{zIndex: Number.MAX_SAFE_INTEGER}}
+            onDismiss={toggleWarning}
+            action={{
+              label: 'Close',
+              onPress: toggleWarning,
+            }}>
+            {errorMessage}
+          </Snackbar>
+        </Portal>
+      }
+      
     </Surface>
   );
 };
