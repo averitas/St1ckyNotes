@@ -35,6 +35,14 @@ export const initNotesManager =
     }
 };
 
+// TODO: summary error message from all redux slices.
+export const GetErrorMessage =
+  (): AppThunk =>
+  (dispatch, getState) => {
+    
+};
+
+/// Async thunks
 export const GetAvatarAsync = createAsyncThunk(
   'notes/getAvatar',
   async (_, { getState, dispatch }) => {
