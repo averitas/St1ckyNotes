@@ -1,4 +1,10 @@
-import React, { useState, useRef, useCallback, useEffect, useContext } from 'react';
+import React, {
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  useContext,
+} from "react";
 import {
   StyleSheet,
   View,
@@ -6,25 +12,34 @@ import {
   FlatList,
   TouchableOpacity,
   Dimensions,
-} from 'react-native';
-import { Avatar, Surface, Card, PaperProvider, Button, Text, FAB } from 'react-native-paper';
-import { connect, ConnectedProps } from 'react-redux'
-import { FontAwesome } from 'react-native-vector-icons';
-import { Note } from '../types/note';
-import NoteEditor from './noteEditor';
-import { AppDispatch, RootState } from '../redux/store';
-import { addBlankNote } from '../redux/notesSlice';
-import { NotesListStatus } from '../redux/actionType';
-import { FetchNotesAsync } from '../redux/actions';
+} from "react-native";
+import {
+  Avatar,
+  Surface,
+  Card,
+  PaperProvider,
+  Button,
+  Text,
+  FAB,
+} from "react-native-paper";
+import MasonryList from "@react-native-seoul/masonry-list";
+import { connect, ConnectedProps } from "react-redux";
+import { FontAwesome } from "react-native-vector-icons";
+import { Note } from "../types/note";
+import NoteEditor from "./noteEditor";
+import { AppDispatch, RootState } from "../redux/store";
+import { addBlankNote } from "../redux/notesSlice";
+import { NotesListStatus } from "../redux/actionType";
+import { FetchNotesAsync } from "../redux/actions";
 
-const LeftContent = props => <Avatar.Icon {...props} icon="text" />
+const LeftContent = (props) => <Avatar.Icon {...props} icon="text" />;
 
 const useComponentSize = () => {
   const [size, setSize] = useState(null);
 
-  const onLayout = useCallback(event => {
+  const onLayout = useCallback((event) => {
     const { width, height } = event.nativeEvent.layout;
-    console.log("layout is " + event.nativeEvent.layout)
+    console.log("layout is " + event.nativeEvent.layout);
     setSize({ width, height });
   }, []);
 
@@ -35,23 +50,23 @@ const widthPerColumn = 150;
 
 const mapState = (state: RootState) => ({
   NotesList: state.nodesList.notes,
-  ListState:state.nodesList.status,
+  ListState: state.nodesList.status,
   AuthResult: state.authReducer.AuthResult,
   AuthState: state.authReducer.status,
-})
+});
 
 const mapDispatch = (dispatch: AppDispatch) => {
   return {
     // dispatching plain actions
     addBlankNote: () => dispatch(addBlankNote()),
     fetchNotes: () => dispatch(FetchNotesAsync()),
-  }
-}
+  };
+};
 
 // init redux property
-const connector = connect(mapState, mapDispatch)
+const connector = connect(mapState, mapDispatch);
 
-type PropsFromRedux = ConnectedProps<typeof connector>
+type PropsFromRedux = ConnectedProps<typeof connector>;
 
 interface NotesListProps extends PropsFromRedux {
   navigation: any;
@@ -60,17 +75,17 @@ interface NotesListProps extends PropsFromRedux {
 
 const NotesList = (props: NotesListProps) => {
   // relayout according to screen size
-  const [numColumns, setNumColumns] = useState<number>(1)
+  const [numColumns, setNumColumns] = useState<number>(1);
   const [size, onLayout] = useComponentSize();
 
-  const flatListRef = useRef<FlatList>(null);
+  const flatListRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     if (props.NotesList.length === 0) {
       return;
     }
     // flatListRef.current.scrollToIndex({index: props.NotesList.length, animated: true});
-    flatListRef.current.scrollToEnd({animated: true});
+    flatListRef.current.scrollToEnd({ animated: true });
   }, [props.NotesList]);
 
   useEffect(() => {
@@ -85,14 +100,19 @@ const NotesList = (props: NotesListProps) => {
 
   const getColumns = (size) => {
     if (size == null) {
-      console.log("size is null")
+      console.log("size is null");
       return;
     }
 
-    console.log('Width: %d, height: %d, widthPerColumn: %d', size.width, size.height, widthPerColumn)
+    console.log(
+      "Width: %d, height: %d, widthPerColumn: %d",
+      size.width,
+      size.height,
+      widthPerColumn
+    );
     // Calculate the number of columns based on the width and height of the screen.
     const numColumns = Math.floor(size.width / (widthPerColumn + 40));
-    
+
     // Return the number of columns.
     return numColumns;
   };
@@ -104,37 +124,49 @@ const NotesList = (props: NotesListProps) => {
 
   return (
     <Surface style={styles.surface} elevation={4} onLayout={onLayout}>
-      <FlatList
-        ref={flatListRef}
+      <MasonryList
+        innerRef={flatListRef}
         scrollToOverflowEnabled={true}
-        contentContainerStyle={{flexGrow: 1, alignContent: 'space-around', justifyContent: 'flex-start', width: '100%', marginHorizontal: "5%"}}
-        style={{flexGrow: 1, width: "100%", alignSelf: 'flex-start', alignContent: 'flex-start'}}
-        inverted={true}
+        contentContainerStyle={{
+          flexGrow: 1,
+          alignContent: "space-around",
+          justifyContent: "flex-start",
+          width: "100%",
+        }}
+        style={{
+          flexGrow: 1,
+          width: "100%",
+          alignSelf: "flex-start",
+          alignContent: "flex-start",
+        }}
         key={numColumns}
-        data={props.NotesList}
+        data={props.NotesList.slice(0).reverse()}
         numColumns={numColumns}
         keyExtractor={(note, index) => String(index)}
-        renderItem={({ item, index }) => (
-          <TouchableOpacity onPress={() => {
-            // Go to edit page
-            props.navigation.navigate('NoteEditor', {note: item})
-          }} key={index}>
+        renderItem={({ item, i: index }) => (
+          <TouchableOpacity
+            onPress={() => {
+              // Go to edit page
+              props.navigation.navigate("NoteEditor", { note: item });
+            }}
+            key={index}
+            style={{ alignItems: "center" }}
+          >
             <View style={styles.note}>
-            <Card>
-              <Card.Title titleVariant='titleMedium' title={item.title} />
-              <Card.Content>
-                <Text variant="bodySmall">{item.preview}</Text>
-              </Card.Content>
-            </Card>
+              <Card>
+                <Card.Title
+                  titleVariant="titleMedium"
+                  title={(item as any).title}
+                />
+                <Card.Content>
+                  <Text variant="bodySmall">{(item as any).preview}</Text>
+                </Card.Content>
+              </Card>
             </View>
           </TouchableOpacity>
         )}
       />
-      <FAB
-        icon="plus"
-        style={styles.addFab}
-        onPress={props.addBlankNote}
-      />
+      <FAB icon="plus" style={styles.addFab} onPress={props.addBlankNote} />
     </Surface>
   );
 };
@@ -143,30 +175,30 @@ export default connector(NotesList);
 
 const styles = StyleSheet.create({
   note: {
-    margin: 10,
+    margin: 0,
     padding: 10,
     borderRadius: 5,
-    width: widthPerColumn,
+    width: "100%",
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   content: {
     fontSize: 16,
   },
   surface: {
     flex: 1,
-    marginTop: '0%',
-    marginBottom: '0%',
-    paddingBottom: '0%',
+    marginTop: "0%",
+    marginBottom: "0%",
+    paddingBottom: "0%",
     height: "100%",
     width: "100%",
     maxWidth: "100%",
     maxHeight: "100%",
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignSelf: "center",
+    alignItems: "center",
+    justifyContent: "center",
   },
   editor: {
     position: "absolute",
@@ -176,10 +208,10 @@ const styles = StyleSheet.create({
     height: 200,
     display: "flex",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   addFab: {
-    position: 'absolute',
+    position: "absolute",
     margin: 16,
     right: 0,
     bottom: 0,
