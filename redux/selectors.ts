@@ -15,3 +15,12 @@ export const selectAccessToken = (state: RootState) => {
     }
     return state.authReducer.AuthResult.accessToken;
 }
+
+export const selectNotesMessage = (state: RootState, noteId: string) => {
+    let messages = state.backgroundReducer.ChatMessages;
+    let filteredMessages = messages.filter((message) => message.noteId === noteId);
+    if (!filteredMessages || filteredMessages.length === 0) {
+        return undefined;
+    }
+    return filteredMessages[0];
+}

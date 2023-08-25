@@ -9,7 +9,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { CommonActions, NavigationContainer } from "@react-navigation/native";
 import { ConnectedProps, connect } from "react-redux";
 import { AppDispatch, RootState } from "../redux/store";
-import { initAsync, GetAvatarAsync } from "../redux/actions";
+import { initAsync, GetAvatarAsync, FetchNotesAsync } from "../redux/actions";
 
 const mapState = (state: RootState) => ({
   AuthResult: state.authReducer.AuthResult,
@@ -20,6 +20,7 @@ const mapDispatch = (dispatch: AppDispatch) => {
     // dispatching plain actions
     initAsync: () => dispatch(initAsync()),
     getAvatarAsync: () => dispatch(GetAvatarAsync()),
+    fetchNotes: () => dispatch(FetchNotesAsync()),
   };
 };
 
@@ -45,6 +46,7 @@ const App = (props: AppProps) => {
         setAvatar(avatarUrl.payload as string);
       }
     });
+    props.fetchNotes();
   }, [props.AuthResult]);
 
   return (

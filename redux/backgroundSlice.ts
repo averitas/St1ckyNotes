@@ -1,13 +1,28 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { NotesListStatus } from './actionType';
+import { ChatMessage } from '../types/general';
+import { ChatAppClient } from '../tools/clients/chatAppClient';
+import { sendChatAsync } from './actions';
 
-/// Init State
-export interface AuthState {
-    ErrorMessages: string[];
+var chatAppClient: ChatAppClient;
+
+export const SetChatAppClient = (client: ChatAppClient) => {
+    chatAppClient = client;
 }
 
-const initialState: AuthState = {
+export const GetChatAppClient = () => chatAppClient;
+
+/// Init State
+export interface ClientState {
+    ErrorMessages: string[];
+    ChatMessages: ChatMessage[];
+    status: NotesListStatus;
+}
+
+const initialState: ClientState = {
     ErrorMessages: [],
+    ChatMessages: [],
+    status: NotesListStatus.idle,
 };
 
 export const backgroundSlice = createSlice({
@@ -18,12 +33,40 @@ export const backgroundSlice = createSlice({
         addErrorMessage: (state, action: PayloadAction<string>) => {
             state.ErrorMessages.push(action.payload);
         },
+        pushChatMessage: (state, action: PayloadAction<ChatMessage>) => {
+            let newMessages = []
+            let added = false;
+            state.ChatMessages.forEach(element => {
+                if (element.noteId !== action.payload.noteId) {
+                    newMessages.push(element);
+                    added = true;
+                } else {
+                    newMessages.push(action.payload);
+                }
+            });
+            if (!added) {
+                newMessages.push(action.payload);
+            }
+
+            state.ChatMessages = newMessages;
+        }
     },
     extraReducers: (builder) => {
-      
+      builder
+      .addCase(
+        sendChatAsync.pending, (state, action) => {
+            state.status = NotesListStatus.loading;
+        }
+      )
+      .addCase(
+        sendChatAsync.fulfilled, (state, action) => {
+            state.status = NotesListStatus.idle;
+            pushChatMessage(action.payload);
+        }
+      )
     }
 });
 
-export const { addErrorMessage } = backgroundSlice.actions;
+export const { addErrorMessage, pushChatMessage } = backgroundSlice.actions;
 
 export default backgroundSlice.reducer;
