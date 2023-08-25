@@ -44,6 +44,7 @@ interface ChatBoxProps extends PropsFromRedux {
   noteEditing: Note;
   setNoteEditing: (note: Note) => void;
   setError: (error: string) => void;
+  setOutputText: (output: string) => void;
 }
 
 const ChatBox = (props: ChatBoxProps) => {
@@ -57,10 +58,6 @@ const ChatBox = (props: ChatBoxProps) => {
   useEffect(() => {
     setChatStatus(props.BackgroundStatus);
     const messages = props.NoteMessages;
-    console.log('Notes Message length: ' + messages.length);
-    messages.forEach(element => {
-      console.log('Notes Message for Id: ' + element.noteId + ', message: ' + element.reply);
-    });
     let filteredMessages = messages.filter((message) => message.noteId === props.noteEditing.id);
     if (!filteredMessages || filteredMessages.length === 0) {
       console.log('No message found for note: ' + props.noteEditing.id);
@@ -134,16 +131,8 @@ const ChatBox = (props: ChatBoxProps) => {
               />
               <Button
                 onPress={() => {
-                  props.updateNote({
-                    id: props.noteEditing.id,
-                    title: props.noteEditing.title,
-                    content: responseText,
-                    preview: props.noteEditing.preview,
-                    localId: props.noteEditing.localId,
-                    date: props.noteEditing.date,
-                    tags: props.noteEditing.tags,
-                    isDraft: props.noteEditing.isDraft,
-                  });
+                  props.setOutputText(responseText);
+                  props.setVisible(false);
                 }}> Apply </Button>
               {/* <Markdown>
                   {noteEditing.content}

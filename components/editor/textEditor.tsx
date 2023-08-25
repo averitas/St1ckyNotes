@@ -26,7 +26,7 @@ export default function TextEditor(props: TextEditorProps) {
   const richText = React.useRef();
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{flex: 1, width: props.width, height: props.height}}>
       <ScrollView>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}

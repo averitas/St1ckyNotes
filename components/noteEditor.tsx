@@ -101,6 +101,7 @@ const NoteEditor = (props: NoteEditorProps) => {
   const [isChatVisible, setIsChatVisible] = useState<boolean>(false);
   const [warnVisible, setWarnVisible] = React.useState<boolean>(false);
   const [errorMessage, setErrorMessage] = React.useState<string>('');
+  const [incommingText, setIncommingText] = React.useState<string>('');
 
   const [editorSurfaceSize, onEditorSurfaceLayout] = useComponentSize();
 
@@ -116,6 +117,25 @@ const NoteEditor = (props: NoteEditorProps) => {
   const showError = (error: string) => {
     setErrorMessage(error);
     setWarnVisible(true);
+  }
+
+  const hasIncommingText = incommingText !== ''
+  let editorSize = { width: 0, height: 0 };
+  if (!editorSurfaceSize) {
+    editorSize = { width: 300, height: 300 };
+  }
+  else {
+    if (editorSurfaceSize.width > editorSurfaceSize.height) {
+      editorSize = { width: editorSurfaceSize.width, height: editorSurfaceSize.height };
+      if (hasIncommingText) {
+        editorSize.width = editorSize.width / 2;
+      }
+    } else {
+      editorSize = { width: editorSurfaceSize.width, height: editorSurfaceSize.height };
+      if (hasIncommingText) {
+        editorSize.height = editorSize.height / 2;
+      }
+    }
   }
 
   // TODO: Add a text editor here.
@@ -171,7 +191,7 @@ const NoteEditor = (props: NoteEditorProps) => {
         <Appbar.Action icon="chat-outline" onPress={toggleChat} />
       </Appbar.Header>
       <Surface
-        style={styles.surface}
+        style={{...styles.surface, flexDirection: editorSurfaceSize?.width > editorSurfaceSize?.height ? "row" : "column"}}
         ref={editorSurface}
         onLayout={onEditorSurfaceLayout}
       >
@@ -184,6 +204,7 @@ const NoteEditor = (props: NoteEditorProps) => {
               noteEditing={noteEditing}
               setNoteEditing={setNoteEditing}
               setError={showError}
+              setOutputText={setIncommingText}
             />
           </Portal>
         )}
@@ -193,16 +214,16 @@ const NoteEditor = (props: NoteEditorProps) => {
               setNoteEditing({ ...noteEditing, content: content });
             }}
             content={noteEditing.content}
-            width={editorSurfaceSize?.width ?? 300}
-            height={editorSurfaceSize?.width ?? 600}
+            width={editorSize.width}
+            height={editorSize.height}
           />
         ) : (
           <ScrollView
             contentInsetAdjustmentBehavior="automatic"
-            style={{ height: "100%" }}
+            style={{ height: editorSize.height, flex: 1, width: editorSize.width }}
           >
             <RenderHtml
-              contentWidth={editorSurfaceSize?.width ?? 300}
+              contentWidth={editorSize.width}
               source={{ html: noteEditing.content }}
             />
             {/* <Markdown>
@@ -210,6 +231,16 @@ const NoteEditor = (props: NoteEditorProps) => {
               </Markdown> */}
           </ScrollView>
         )}
+        {hasIncommingText &&
+          <ScrollView
+            style={{ height: editorSize.height, flex: 1, width: editorSize.width }}
+          >
+            <RenderHtml
+              contentWidth={editorSize.width}
+              source={{ html: incommingText }}
+            />
+          </ScrollView>
+        }
       </Surface>
       {
         warnVisible &&
@@ -253,6 +284,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "stretch",
     alignContent: "stretch",
+    justifyContent: 'space-between',
   },
 });
 

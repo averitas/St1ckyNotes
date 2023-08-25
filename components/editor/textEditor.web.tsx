@@ -19,9 +19,9 @@ export default function TextEditor(props: TextEditorProps) {
   const editor = React.useRef(null);
 
   return (
-    <SafeAreaView style={{flex: 1, maxHeight: '95%' }}>
+    <SafeAreaView style={{flex: 1, maxHeight: '95%', width: props.width, height: props.height * 0.95 }}>
       <Editor
-          // style={{height: '100%', maxHeight: props.height, width: props.width}}
+          style={{width: props.width}}
           editorState={editorState}
           ref={editor}
           toolbarClassName="toolbarClassName"
