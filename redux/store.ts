@@ -1,11 +1,13 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import notesListReducer from './notesSlice';
 import authReducer from './authSlice';
+import backgroundReducer from './backgroundSlice';
 
 export const store = configureStore({
   reducer: {
     nodesList: notesListReducer,
     authReducer: authReducer,
+    backgroundReducer: backgroundReducer,
   },
 });
 

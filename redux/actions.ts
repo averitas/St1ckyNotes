@@ -3,11 +3,14 @@ import { AppDispatch, AppThunk, RootState } from '../redux/store';
 import { GetNotesManager, SetNotesManager, deleteNote, updateNote } from '../redux/notesSlice';
 import { GraphNotesManager } from '../tools/notesManagers/graph';
 import { Note, NotesSource, RemoteNote } from '../types/note';
-import { selectAccessToken, selectNotesSource } from './selectors';
+import { selectAccessToken, selectNotesMessage, selectNotesSource } from './selectors';
 import { MSALPromptType, MSALWebviewParams } from 'react-native-msal';
 import { GetB2cClient, InitMsalB2cClient } from './authSlice';
 import { config } from '../tools/msal';
 import { v4 as uuidv4 } from 'uuid';
+import { GetChatAppClient, SetChatAppClient, pushChatMessage } from './backgroundSlice';
+import { ChatAppClient } from '../tools/clients/chatAppClient';
+import { ChatMessage } from '../types/general';
 
 /// Notes Thunks functions
 // We can also write thunks by hand, which may contain both sync and async logic.
@@ -23,9 +26,13 @@ export const initNotesManager =
         if (!accessToken) {
           throw new Error('Access token is null, cannot init notes manager.');
         }
+        // init notes manager
         const b2cClient = GetB2cClient();
         if (b2cClient) {
           SetNotesManager(new GraphNotesManager(GetB2cClient()));
+
+          // TODO: do we need to move it to other function?
+          SetChatAppClient(new ChatAppClient(GetB2cClient()));
         }
         break;
 
@@ -35,6 +42,14 @@ export const initNotesManager =
     }
 };
 
+// TODO: summary error message from all redux slices.
+export const GetChatOfNoteId =
+  (noteId: string): AppThunk =>
+  (dispatch, getState) => {
+    return selectNotesMessage(getState(), noteId);
+};
+
+/// Async thunks
 export const GetAvatarAsync = createAsyncThunk(
   'notes/getAvatar',
   async (_, { getState, dispatch }) => {
@@ -255,5 +270,33 @@ export const acquireTokenAsync = createAsyncThunk(
           console.warn(error);
       }
       return null;
+  }
+);
+
+/// Chat messages Thunks functions
+export const sendChatAsync = createAsyncThunk(
+  'background/sendChatAsync',
+  async (message: ChatMessage, { getState, dispatch }) => {
+      const b2cClient = GetB2cClient();
+      if (!b2cClient) {
+          throw new Error("b2cClient is null");
+      }
+      let appClient = GetChatAppClient();
+      if (!appClient) {
+        SetChatAppClient(new ChatAppClient(b2cClient));
+        appClient = GetChatAppClient();
+      }
+
+      try {
+          const res = await appClient.SendMessage(message).then((resp) => {
+            console.log("sendChatAsync get response: " + resp.reply);
+            dispatch(pushChatMessage(resp));
+            return resp;
+          });
+          return res;
+      } catch (error) {
+          console.warn(error);
+          throw error;
+      }
   }
 );
