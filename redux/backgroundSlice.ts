@@ -47,6 +47,7 @@ export const backgroundSlice = createSlice({
             if (!added) {
                 newMessages.push(action.payload);
             }
+            console.log('Insert ChatMessage of id: ' + action.payload.noteId);
 
             state.ChatMessages = newMessages;
         }

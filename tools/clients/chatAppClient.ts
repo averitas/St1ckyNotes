@@ -13,6 +13,7 @@ export class ChatAppClient {
             const token = await this.client.acquireTokenSilent({ scopes: config.auth.appScopes });
 
             let newMessage = this.composeMessage(message);
+            console.log('Sending ChatMessage of note id: ' + message.noteId);
             const resp = await fetch('https://openaiproxybackendapp.azurewebsites.net/api/azopenaitrigger', {
               mode: 'cors',
               method: 'POST',
@@ -39,11 +40,18 @@ export class ChatAppClient {
                 promo: message.promo,
                 reply: bodyEntity.message,
                 type: message.type,
-                context: bodyEntity.data.context,
+                context: [...bodyEntity.data.context],
             } as ChatMessage;
         } catch (error) {
             console.warn(error);
-            throw error;
+            return {
+                noteId: message.noteId,
+                sessionId: '',
+                promo: message.promo,
+                reply: 'Request failed with response: ' + String(error),
+                type: message.type,
+                context: [],
+            } as ChatMessage
         }
     }
 
@@ -57,6 +65,7 @@ export class ChatAppClient {
             context: message.context,
         } as ChatMessage;
 
+        console.log('Cmp Input Chat message is ' + JSON.stringify(res.context));
         if (!message.context || message.context.length === 0) {
             res.context = [{role: "system", content: "The message the user sent to you is in HTML format. " + 
                     "The reply from you should be in HTML format as well. DO NOT reply anything other than the HTML content."}];

@@ -28,7 +28,7 @@ export default function TextEditor(props: TextEditorProps) {
           wrapperClassName="wrapperClassName"
           editorClassName="editorClassName"
           wrapperStyle={{height: '100%'}}
-          editorStyle={{height: '98%'}}
+          editorStyle={{height: '80%'}}
           onEditorStateChange={(es) => {
             setEditorState(es);
             props.setContent(stateToHTML(es.getCurrentContent()));

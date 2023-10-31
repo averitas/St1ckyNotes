@@ -91,7 +91,7 @@ const ChatBox = (props: ChatBoxProps) => {
         promo: chatMessage.promo,
         reply: chatMessage.reply,
         type: chatMessage.type,
-        context: chatMessage.context,
+        context: [...chatMessage.context],
       };
     }
     newChatMessage.promo = props.noteEditing.content;
